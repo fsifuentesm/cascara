@@ -64,35 +64,13 @@
                 </b-card>
 
                 <b-card>
-                  <span v-if="searchForm && searchForm.searchText">
-                    Buscando: <b>"{{ searchForm.searchText }}"</b>
-                    <hr/>
-                  </span>
-
-                  <b-collapse :id="collapseId" v-model="visible">
-                    <app-inbox-search-card
-                      class="mb-3"
-                      :fixed-args="fixedPayload"
-                      v-model="searchForm"
-                      v-on:submit="submitForm"
-                    />
-                  </b-collapse>
-
-                  <div class="w-100 text-center">
-                    <a
-                      v-b-toggle="collapseId"
-                      href="#"
-                      @click.prevent
-                    >
-                      <span v-if="!visible">
-                        <icon :icon="['fas', 'caret-down']"/>
-                        Mostrar controles de busqueda</span>
-                      <span v-else>
-                        <icon :icon="['fas', 'caret-up']"/>
-                        Ocultar controles de busqueda</span>
-                    </a>
-                  </div>
+                  <app-inbox-search-card
+                    :fixed-args="fixedPayload"
+                    v-model="searchForm"
+                    v-on:submit="submitForm"
+                  />
                 </b-card>
+
               </div>
             </div>
 
@@ -233,9 +211,6 @@ export default {
       required: true,
     },
     executionId: String,
-    query: String,
-    notified: Array,
-    actored: Array,
     fixedPayload: Object,
     payload: Object,
     availableFeedOptions: Array,
@@ -243,9 +218,6 @@ export default {
 
   data() {
     return {
-      uuid: Math.random(),
-      visible: false,
-
       baseForm: {
         searchText: '',
         objType: 'execution',
@@ -280,13 +252,6 @@ export default {
   },
 
   computed: {
-    collapseId() {
-      const vm = this;
-      const modalId = `collapse-${vm.uuid}`;
-
-      return modalId;
-    },
-
     showLeft() {
       return (
         (this.showRight === false && (this.$mq === 'md' || this.$mq === 'lg')) ||
