@@ -235,6 +235,15 @@ export default {
   },
 
   methods: {
+    compareItems(a, b) {
+      const dateA = moment(a.started_at);
+      const dateB = moment(b.started_at);
+
+      if (dateA < dateB) { return 1; }
+      if (dateA > dateB) { return -1; }
+      return 0;
+    },
+
     handleMessage() {
       this.loadRecent();
     },
@@ -275,14 +284,7 @@ export default {
             }
           });
 
-          vm.listItems.data.sort((a, b) => {
-            const dateA = moment(a.started_at);
-            const dateB = moment(b.started_at);
-
-            if (dateA < dateB) { return 1; }
-            if (dateA > dateB) { return -1; }
-            return 0;
-          });
+          vm.listItems.data.sort(vm.compareItems);
 
           vm.listItems.totalCount = totalCount;
           vm.listItems.loading = false;
@@ -349,14 +351,7 @@ export default {
             }
           });
 
-          vm.listItems.data.sort((a, b) => {
-            const dateA = moment(a.started_at);
-            const dateB = moment(b.started_at);
-
-            if (dateA < dateB) { return 1; }
-            if (dateA > dateB) { return -1; }
-            return 0;
-          });
+          vm.listItems.data.sort(vm.compareItems);
 
           vm.recentItems.loading = false;
         }).catch(() => {
@@ -408,14 +403,7 @@ export default {
             }
           });
 
-          vm.listItems.data.sort((a, b) => {
-            const dateA = moment(a.started_at);
-            const dateB = moment(b.started_at);
-
-            if (dateA < dateB) { return 1; }
-            if (dateA > dateB) { return -1; }
-            return 0;
-          });
+          vm.listItems.data.sort(vm.compareItems);
 
           vm.olderItems.loading = false;
         }).catch(() => {
