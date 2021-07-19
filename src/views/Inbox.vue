@@ -1,193 +1,156 @@
 <template>
-  <div
-    class="container-fluid p-0"
-    style="max-width: 1270px;"
+  <app-inbox-layout
+    :show-left="showLeft"
+    :show-center="showCenter"
+    :show-right="showRight"
     ref="inboxTop"
   >
-    <div class="row no-gutters"
-      v-if="!showRight"
-    >
-      <div class="col">
-        <slot name="top">
-          <div class="px-3 py-2 text-center">
-            <h3>{{ title }}</h3>
-            <p>{{ description }}</p>
-          </div>
-          <hr/>
-
-        </slot>
+    <template v-slot:header>
+      <div class="px-3 py-2 text-center">
+        <h3>{{ title }}</h3>
+        <p>{{ description }}</p>
       </div>
-    </div>
+      <hr/>
+    </template>
 
-    <div class="row no-gutters">
-      <div v-if="showLeft"
-        :class="{
-          'col-2': showRight,
-          'col-3': !showRight,
-          'pr-2': showCenter,
-        }"
-      >
-        <slot name="left">
-          <app-inbox-sidebar
-            :selected-search="feed"
-            :search-options="availableFeedOptions"
-            v-on:click-feed="selectFeed($event)"
-          />
-        </slot>
-      </div>
+    <template v-slot:left>
+      <app-inbox-sidebar
+        :selected-search="feed"
+        :search-options="availableFeedOptions"
+        v-on:click-feed="selectFeed($event)"
+      />
+    </template>
 
-      <div v-if="showCenter"
-        :class="{
-          'col-3': showLeft && showRight,
-          'col-4': !showLeft && showRight,
-          'col-9': showLeft && !showRight,
-          'col-12': !showLeft && !showRight,
-          'pl-2': showLeft,
-          'pr-2': showRight,
-        }"
-      >
-        <slot name="center">
-          <div class="container-fluid p-0">
-            <div class="row no-gutters mb-3">
-              <div class="col">
-                <b-card
-                  v-if="!showLeft"
-                  class="mb-3"
-                >
-                  <b-form-select
-                    @change="selectFeed($event)"
-                    @input="selectFeed($event)"
-                    text-field="label"
-                    :value="feed"
-                    :options="availableFeedOptions"
-                  />
-                </b-card>
-
-                <b-card>
-                  <app-inbox-search-card
-                    :fixed-args="fixedPayload"
-                    v-model="searchForm"
-                    v-on:submit="submitForm"
-                  />
-                </b-card>
-
-              </div>
-            </div>
-
-            <hero v-if="listItems.loading"
-              icon="spinner"
-              title="commons.loading"
-              spin
-            />
-            <div v-else-if="listItems.error"
-              class="text-center my-2"
+    <template v-slot:center>
+      <div class="container-fluid p-0">
+        <div class="row no-gutters mb-3">
+          <div class="col">
+            <b-card
+              v-if="!showLeft"
+              class="mb-3"
             >
-              <icon :icon="['fas', 'times']"/>
-              <span class="ml-1">Error al cargar elementos</span>
-            </div>
-
-            <div
-              v-else
-            >
-              <div class="row no-gutters mb-3"
-                v-if="!listItems.data.length"
-              >
-                <div class="col">
-                  <h4 class="text-center">No hay elementos para mostrar</h4>
-                </div>
-              </div>
-              <div v-else>
-                <div class="col text-right">
-                  <span>Mostrando <b>{{ listItems.data.length }}</b>
-                  de <b>{{ listItems.totalCount }}</b></span>
-                </div>
-              </div>
-
-              <div class="row no-gutters mb-3"
-                v-for="item in listItems.data"
-                :key="item.id"
-              >
-                <div class="col">
-                  <component
-                    :is="itemComponent(item)"
-                    :execution='item'
-                    :pointer='item'
-                    :show-execution='true'
-                    :show-detail="!showRight"
-                    :load-if-doable="false"
-                    v-on:complete="reloadPointer(item.id)"
-                    v-on:click-execution="selectExecution($event);"
-                    v-on:click-username="selectUser($event);"
-                  >
-                    <template v-slot:content
-                      v-if="item.execution && item.execution.id"
-                    >
-                      <timeline-summary
-                        :execution-id="item.execution.id"
-                      />
-                    </template>
-                  </component>
-                </div>
-              </div>
-
-              <hero v-if="olderItems.loading"
-                icon="spinner"
-                title="commons.loading"
-                spin
+              <b-form-select
+                @change="selectFeed($event)"
+                @input="selectFeed($event)"
+                text-field="label"
+                :value="feed"
+                :options="availableFeedOptions"
               />
-              <div class="row no-gutters mb-3"
-                v-else-if="listItems.data.length < listItems.totalCount"
-              >
-                <div class="col">
-                  <button
-                    type="button"
-                    class="btn btn-primary w-100"
-                    @click="loadMore"
-                  >Cargar más</button>
-                </div>
-              </div>
+            </b-card>
+
+            <b-card>
+              <app-inbox-search-card
+                :fixed-args="fixedPayload"
+                v-model="searchForm"
+                v-on:submit="submitForm"
+              />
+            </b-card>
+          </div>
+        </div>
+
+        <hero v-if="listItems.loading"
+          icon="spinner"
+          title="commons.loading"
+          spin
+        />
+
+        <div v-else-if="listItems.error"
+          class="text-center my-2"
+        >
+          <icon :icon="['fas', 'times']"/>
+          <span class="ml-1">Error al cargar elementos</span>
+        </div>
+
+        <div
+          v-else
+        >
+          <div class="row no-gutters mb-3"
+            v-if="!listItems.data.length"
+          >
+            <div class="col">
+              <h4 class="text-center">No hay elementos para mostrar</h4>
             </div>
           </div>
-        </slot>
-      </div>
-
-      <div v-if="showRight"
-        :class="{
-          'col-7': showLeft && showCenter,
-          'col-8': !showLeft && showCenter,
-          'col-12': !showLeft && !showCenter,
-          'pl-2': showCenter,
-        }"
-      >
-        <slot name="right">
-
-          <div>
-            <h3
-              class="text-center"
-            >Flujo de autorizacion</h3>
-
-            <div
-              class="text-right my-2"
-            >
-              <a
-                href="#"
-                v-on:click.prevent="selectExecution()"
-              >
-                <icon :icon="['fas', 'arrow-circle-left']"/>
-                <span class="ml-1">Volver al buscador</span>
-              </a>
+          <div v-else>
+            <div class="col text-right">
+              <span>Mostrando <b>{{ listItems.data.length }}</b>
+              de <b>{{ listItems.totalCount }}</b></span>
             </div>
-
-            <app-inbox-execution-timeline
-              :execution-id="executionId"
-              v-on:complete="reloadPointer($event)"
-              v-on:click-username="selectUser($event);"
-            />
           </div>
-        </slot>
+
+          <div class="row no-gutters mb-3"
+            v-for="item in listItems.data"
+            :key="item.id"
+          >
+            <div class="col">
+              <component
+                :is="itemComponent(item)"
+                :execution='item'
+                :pointer='item'
+                :show-execution='true'
+                :show-detail="!showRight"
+                :load-if-doable="false"
+                v-on:complete="reloadPointer(item.id)"
+                v-on:click-execution="selectExecution($event);"
+                v-on:click-username="selectUser($event);"
+              >
+                <template v-slot:content
+                  v-if="item.execution && item.execution.id"
+                >
+                  <timeline-summary
+                    :execution-id="item.execution.id"
+                  />
+                </template>
+              </component>
+            </div>
+          </div>
+
+          <hero v-if="olderItems.loading"
+            icon="spinner"
+            title="commons.loading"
+            spin
+          />
+          <div class="row no-gutters mb-3"
+            v-else-if="listItems.data.length < listItems.totalCount"
+          >
+            <div class="col">
+              <button
+                type="button"
+                class="btn btn-primary w-100"
+                @click="loadMore"
+              >Cargar más</button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
+    </template>
+
+    <template v-slot:right>
+      <div>
+        <h3
+          class="text-center"
+        >Flujo de autorizacion</h3>
+
+        <div
+          class="text-right my-2"
+        >
+          <a
+            href="#"
+            v-on:click.prevent="selectExecution()"
+          >
+            <icon :icon="['fas', 'arrow-circle-left']"/>
+            <span class="ml-1">Volver al buscador</span>
+          </a>
+        </div>
+
+        <app-inbox-execution-timeline
+          :execution-id="executionId"
+          v-on:complete="reloadPointer($event)"
+          v-on:click-username="selectUser($event);"
+        />
+      </div>
+    </template>
+  </app-inbox-layout>
 </template>
 
 <script>
