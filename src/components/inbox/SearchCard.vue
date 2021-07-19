@@ -228,7 +228,6 @@ export default {
 
   watch: {
     fixedArgs: {
-      immediate: true,
       handler(newVal) {
         this.searchForm = Object.assign({}, this.baseForm, this.value, newVal);
       },

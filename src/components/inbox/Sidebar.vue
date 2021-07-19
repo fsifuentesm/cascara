@@ -24,7 +24,7 @@ export default {
     },
     searchOptions: {
       type: Array,
-      required: true,
+      default: () => ([]),
     },
   },
 };

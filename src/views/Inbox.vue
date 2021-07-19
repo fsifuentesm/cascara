@@ -170,26 +170,6 @@ import _ from 'lodash';
 import { EventBus } from '../event-bus';
 
 export default {
-  props: {
-    title: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    feed: {
-      type: String,
-      required: true,
-    },
-    executionId: String,
-    nodeId: String,
-    fixedPayload: Object,
-    payload: Object,
-    availableFeedOptions: Array,
-  },
-
   data() {
     return {
       baseForm: {
