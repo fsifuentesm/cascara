@@ -589,7 +589,6 @@ export default {
 
   watch: {
     fixedPayload: {
-      immediate: true,
       handler(newVal, oldVal) {
         if (
           !oldVal ||
