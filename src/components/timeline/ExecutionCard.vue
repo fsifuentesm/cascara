@@ -120,6 +120,7 @@
             v-else
             :nodes="steps"
             @click="$emit('click-node', $event)"
+            :selected-node="selectedNode"
           />
         </div>
       </div>
@@ -157,6 +158,9 @@ export default {
     showDetail: {
       type: Boolean,
       default: false,
+    },
+    selectedNode: {
+      type: String,
     },
   },
 

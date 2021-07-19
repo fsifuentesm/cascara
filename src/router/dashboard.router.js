@@ -25,6 +25,7 @@ export const routes = [
 
       const actualProp = {
         executionId: to.query.exe,
+        nodeId: to.query.node,
         payload: {},
         fixedPayload: {},
         availableFeedOptions: availableRoutes.map(x => ({

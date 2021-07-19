@@ -40,7 +40,7 @@
                     'btn-outline-danger': node.state === 'invalid',
                     'btn-outline-warning': node.state === 'ongoing',
                     'btn-outline-secondary': node.state === 'unfilled',
-                    'active': node.id === selected,
+                    'active': node.id === selectedNode,
                   }"
                   @click.prevent="$emit('click', node.id)"
                 >
@@ -83,7 +83,7 @@ export default {
     nodes: {
       required: true,
     },
-    selected: String,
+    selectedNode: String,
   },
 
   data() {

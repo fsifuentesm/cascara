@@ -147,8 +147,10 @@
 
           <app-inbox-execution-timeline
             :execution-id="executionId"
+            :selected-node="nodeId"
             v-on:complete="reloadPointer($event)"
             v-on:click-username="selectUser($event);"
+            v-on:click-node="selectNode($event);"
           />
         </div>
       </template>
@@ -177,6 +179,7 @@ export default {
       required: true,
     },
     executionId: String,
+    nodeId: String,
     fixedPayload: Object,
     payload: Object,
     availableFeedOptions: Array,
@@ -471,6 +474,18 @@ export default {
       newRoute.query.searchUsers = true;
       newRoute.query.notifiedUsers = username;
       newRoute.query.actoredUsers = username;
+
+      this.$router.push(newRoute);
+    },
+
+    selectNode(nodeId) {
+      const newRoute = {
+        name: this.$route.name,
+        params: { ...this.$route.params },
+        query: { ...this.$route.query },
+      };
+
+      newRoute.query.node = nodeId;
 
       this.$router.push(newRoute);
     },
