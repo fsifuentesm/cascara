@@ -7,7 +7,7 @@
       :show-center="showCenter"
       :show-right="showRight"
     >
-      <template v-slot:header>
+      <template v-slot:top>
         <div class="px-3 py-2 text-center">
           <h3>{{ title }}</h3>
           <p>{{ description }}</p>
