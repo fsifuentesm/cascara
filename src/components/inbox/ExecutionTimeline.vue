@@ -72,7 +72,8 @@
           v-for="item in pointers.data" :key="item.id"
         >
           <app-pointer-card
-            :pointer='item'
+            :pointer="item"
+            :selected="item.node.id === selectedNode"
             :show-detail="true"
             v-on:complete="$emit('complete', item.id), reloadExecution()"
             v-on:click-username="$emit('click-username', $event);"

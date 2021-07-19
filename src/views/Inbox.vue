@@ -92,9 +92,14 @@
                   :show-execution='true'
                   :show-detail="!showRight"
                   :load-if-doable="false"
+                  :selected-node="nodeId"
+                  :selected="item.node ?
+                    (item.node.id === nodeId && item.execution.id === executionId) :
+                    false"
                   v-on:complete="reloadPointer(item.id)"
                   v-on:click-execution="selectExecution($event);"
                   v-on:click-username="selectUser($event);"
+                  v-on:click-node="selectExecution(item.id); selectNode($event);"
                 >
                   <template v-slot:content
                     v-if="item.execution && item.execution.id"

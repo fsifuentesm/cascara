@@ -1,6 +1,9 @@
 <template>
   <div
     class="card no-body text-dark bg-light py-3 shadow overflow-auto"
+    :class="{
+      'border border-primary': selected,
+    }"
   >
     <div class="container-fluid">
       <div class="d-flex justify-content-between">
@@ -183,6 +186,7 @@ export default {
       type: Boolean,
       default: true,
     },
+    selected: Boolean,
   },
 
   filters: {
