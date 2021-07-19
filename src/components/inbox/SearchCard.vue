@@ -167,7 +167,7 @@ export default {
         notifiedUsers: null,
         actoredUsers: null,
       },
-      searchForm: null,
+      searchForm: {},
 
       objTypeOptions: [
         { text: 'Flujo de autorización', value: 'execution' },
