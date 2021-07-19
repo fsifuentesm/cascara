@@ -97,9 +97,9 @@
                     (item.node.id === nodeId && item.execution.id === executionId) :
                     false"
                   v-on:complete="reloadPointer(item.id)"
-                  v-on:click-execution="selectExecution($event);"
+                  v-on:click-execution="selExeAux($event); selNodeAux(item);"
                   v-on:click-username="selectUser($event);"
-                  v-on:click-node="selectExecution(item.id); selectNode($event);"
+                  v-on:click-node="selExeAux(item); selNodeAux($event);"
                 >
                   <template v-slot:content
                     v-if="item.execution && item.execution.id"
@@ -257,6 +257,25 @@ export default {
 
     handleMessage() {
       this.loadRecent();
+    },
+
+    selExeAux(obj) {
+      const k = '_type';
+      if (obj[k] === 'execution') {
+        this.selectExecution(obj.id);
+      } else if (obj.execution) {
+        this.selectExecution(obj.execution.id);
+      } else {
+        this.selectExecution(obj);
+      }
+    },
+
+    selNodeAux(obj) {
+      if (obj.node) {
+        this.selectNode(obj.node.id);
+      } else {
+        this.selectNode(obj);
+      }
     },
 
     handleSelectSearch: _.debounce(function handleSelectSearch(form) {

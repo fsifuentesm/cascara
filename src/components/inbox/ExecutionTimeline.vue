@@ -18,7 +18,7 @@
       <app-execution-card
         :execution="execution.data"
         :show-detail="true"
-        :selected-node="selectedNode"
+        :selected-node="executionId === execution.data.id ? selectedNode : ''"
         v-on:click-username="$emit('click-username', $event);"
         v-on:click-node="$emit('click-node', $event);"
       />
