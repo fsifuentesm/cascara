@@ -92,7 +92,7 @@
                   :show-execution='true'
                   :show-detail="!showRight"
                   :load-if-doable="false"
-                  :selected-node="nodeId"
+                  :selected-node="item.id === executionId ? nodeId : ''"
                   :selected="item.node ?
                     (item.node.id === nodeId && item.execution.id === executionId) :
                     false"
