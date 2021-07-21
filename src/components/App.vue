@@ -1,16 +1,6 @@
 <template>
   <div class="h-100">
     <app-header />
-
-    <b-alert
-      variant="danger"
-      class="w-25 mx-auto text-center"
-      v-model="showAlert"
-    >
-      <icon :icon="['fas', 'plug']"/>
-      {{ $t('commons.offline') }}
-    </b-alert>
-
     <router-view />
   </div>
 </template>
@@ -21,42 +11,10 @@ import { EventBus } from '../event-bus';
 export default {
   data() {
     return {
-      online: true,
-      showAlert: false,
+      online: false,
       sseClient: null,
       sse: { cleanup: true },
     };
-  },
-
-  mounted() {
-    const vm = this;
-
-    if (process.env.SSE_ENABLED) {
-      vm.sseClient = vm.$sse.create({
-        format: 'json',
-        polyfill: true,
-        url: `${process.env.CACAHUATE_URL}/stream`,
-        withCredentials: false,
-      });
-
-      vm.sseClient.on('error', () => {
-        vm.online = false;
-        vm.showAlert = true;
-      });
-
-      vm.sseClient.on('execution_update', this.handleUpdate);
-      vm.sseClient.on('execution_delete', this.handleDelete);
-      vm.sseClient.on('execution_patch', this.handlePatch);
-      vm.sseClient.on('execution_create', this.handleCreate);
-
-      vm.sseClient.connect().then(() => {
-        vm.online = true;
-        vm.showAlert = false;
-      }).catch(() => {
-        vm.online = false;
-        vm.showAlert = true;
-      });
-    }
   },
 
   methods: {
@@ -72,12 +30,62 @@ export default {
     handleCreate(evt) {
       EventBus.$emit('execution_create', evt);
     },
+
+    connect() {
+      this.disconnect();
+
+      const vm = this;
+
+      if (!process.env.SSE_ENABLED) { return; }
+
+      vm.online = true;
+
+      vm.sseClient = vm.$sse.create({
+        format: 'json',
+        polyfill: true,
+        url: `${process.env.CACAHUATE_URL}/stream`,
+        withCredentials: true,
+      });
+
+      if (!vm.sseClient) { return; }
+
+      vm.sseClient.on('error', () => {
+        vm.online = false;
+      });
+
+      vm.sseClient.on('execution_update', this.handleUpdate);
+      vm.sseClient.on('execution_delete', this.handleDelete);
+      vm.sseClient.on('execution_patch', this.handlePatch);
+      vm.sseClient.on('execution_create', this.handleCreate);
+
+      vm.sseClient.connect().then(() => { }).catch(() => {
+        vm.online = false;
+      });
+    },
+
+    disconnect() {
+      const vm = this;
+
+      if (vm.sseClient) {
+        vm.sseClient.disconnect();
+        vm.sseClient = null;
+      }
+    },
   },
 
   beforeDestroy() {
-    if (this.sseClient) {
-      this.sseClient.disconnect();
-    }
+    this.disconnect();
+  },
+
+  watch: {
+    online: {
+      immediate: true,
+      handler(newVal) {
+        if (!newVal) {
+          setTimeout(this.connect, 5000);
+        }
+      },
+    },
   },
 };
 </script>
