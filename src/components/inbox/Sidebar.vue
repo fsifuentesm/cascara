@@ -8,9 +8,10 @@
       <b-nav-item
         href="#"
         v-on:click.prevent="$emit('click-feed', item.value)"
-        v-for="(item, index) in searchOptions"
+        v-for="(item, index) in options"
         :key="index"
         :active="item.value === selectedSearch"
+        :disabled="disabled"
       >{{ item.label }}</b-nav-item>
     </b-nav>
   </div>
@@ -22,9 +23,12 @@ export default {
     selectedSearch: {
       type: String,
     },
-    searchOptions: {
+    options: {
       type: Array,
-      default: () => ([]),
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
     },
   },
 };
