@@ -10,6 +10,7 @@
             v-model="searchForm.searchText"
             placeholder="Título o Id"
             type="search"
+            :disabled="disabled"
           ></b-form-input>
         </b-form-group>
 
@@ -23,7 +24,7 @@
             button-variant="outline-primary"
             name="radio-btn-outline"
             @input="onObjTypeInput"
-            :disabled="typeof fixedArgs.objType !== 'undefined'"
+            :disabled="disabled || typeof fixedArgs.objType !== 'undefined'"
           ></b-form-radio-group>
         </b-form-group>
 
@@ -37,7 +38,7 @@
             v-model="searchForm.pointerStatus"
             :options="itemStatusOptions"
             switches
-            :disabled="typeof fixedArgs.pointerStatus !== 'undefined'"
+            :disabled="disabled || typeof fixedArgs.pointerStatus !== 'undefined'"
           ></b-form-checkbox-group>
         </b-form-group>
 
@@ -53,7 +54,7 @@
             v-model="searchForm.executionStatus"
             :options="itemStatusOptions"
             switches
-            :disabled="typeof fixedArgs.executionStatus !== 'undefined'"
+            :disabled="disabled || typeof fixedArgs.executionStatus !== 'undefined'"
           ></b-form-checkbox-group>
         </b-form-group>
 
@@ -65,6 +66,7 @@
             <b-form-input
               v-model="searchForm.minDate"
               type="date"
+              :disabled="disabled"
             ></b-form-input>
           </b-form-group>
 
@@ -75,6 +77,7 @@
             <b-form-input
               v-model="searchForm.maxDate"
               type="date"
+              :disabled="disabled"
             ></b-form-input>
           </b-form-group>
         </b-form-row>
@@ -86,7 +89,7 @@
             v-model="searchForm.searchUsers"
             switch
             @input="onUserSearchInput"
-            :disabled="typeof fixedArgs.searchUsers !== 'undefined'"
+            :disabled="disabled || typeof fixedArgs.searchUsers !== 'undefined'"
           >Sí, buscar usuario</b-form-checkbox>
         </b-form-group>
 
@@ -97,7 +100,7 @@
             :label="'Usuarios que realizaron tareas'"
             :placeholder="'Introduce un id de usuario'"
             v-model="searchForm.actoredUsers"
-            :disabled="typeof fixedArgs.actoredUsers !== 'undefined'"
+            :disabled="disabled || typeof fixedArgs.actoredUsers !== 'undefined'"
           ></user-input>
         </b-form-group>
 
@@ -111,13 +114,14 @@
             :label="'Usuarios asignados'"
             :placeholder="'Introduce un id de usuario'"
             v-model="searchForm.notifiedUsers"
-            :disabled="typeof fixedArgs.notifiedUsers !== 'undefined'"
+            :disabled="disabled || typeof fixedArgs.notifiedUsers !== 'undefined'"
           ></user-input>
         </b-form-group>
 
         <b-button
           type="submit"
           variant="secondary"
+          :disabled="disabled"
         >
           <span>
             <icon :icon="['fa', 'search']"/>
@@ -148,7 +152,14 @@
 export default {
   props: {
     fixedArgs: Object,
-    value: Object,
+    value: {
+      type: Object,
+      required: true,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   data() {
@@ -159,15 +170,15 @@ export default {
       baseForm: {
         searchText: '',
         objType: 'execution',
-        pointerStatus: ['ongoing', 'finished', 'cancelled'],
-        executionStatus: ['ongoing', 'finished', 'cancelled'],
+        pointerStatus: [],
+        executionStatus: [],
         minDate: null,
         maxDate: null,
         searchUsers: false,
         notifiedUsers: null,
         actoredUsers: null,
       },
-      searchForm: {},
+      searchForm: Object.assign(this.value),
 
       objTypeOptions: [
         { text: 'Flujo de autorización', value: 'execution' },
