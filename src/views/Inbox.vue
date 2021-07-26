@@ -273,6 +273,8 @@ export default {
       } else {
         this.executionId = item;
       }
+
+      this.updateRoute();
     },
 
     handleItemClickExecution(v, item) {
@@ -281,6 +283,7 @@ export default {
       }
 
       this.executionId = v;
+      this.updateRoute();
     },
 
     handleSelectSearch: _.debounce(function handleSelectSearch(form) {
@@ -471,8 +474,6 @@ export default {
     selectExecution(newExecution) {
       this.executionId = newExecution;
       this.updateRoute();
-      // const el = this.$refs.inboxTop;
-      // el.scrollIntoView({ behavior: 'smooth' });
     },
 
     selectUser(username) {
@@ -499,8 +500,8 @@ export default {
 
     updateRoute() {
       const query = {
-        exe: this.executionId,
-        node: this.nodeId,
+        executionId: this.executionId,
+        nodeId: this.nodeId,
         feed: this.feed,
       };
 

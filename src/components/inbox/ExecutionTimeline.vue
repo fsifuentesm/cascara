@@ -253,7 +253,9 @@ export default {
         vm.fetchExecution(newVal);
 
         const el = this.$refs.inboxTop;
-        el.scrollIntoView({ behavior: 'smooth' });
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
       },
       immediate: true,
     },
