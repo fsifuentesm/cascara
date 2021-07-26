@@ -6,7 +6,7 @@ export const routes = [
       {
         name: 'dashboard',
         query: {
-          feed: 'myPendingTasks',
+          feed: 'myOngoingTasks',
         },
       }
     ),

@@ -1,10 +1,16 @@
 <template>
   <div
     class="card no-body text-dark bg-light py-3 shadow overflow-auto"
+    :class="{
+      'border border-primary': selected,
+    }"
   >
     <div class="container-fluid">
-      <div class="d-flex justify-content-between">
-        <small class="text-muted">Tarea</small>
+      <div class="d-flex justify-content-between mb-2">
+        <small class="text-muted">
+          <span class="badge badge-pill badge-secondary"
+          >Tarea</span>
+        </small>
         <small class="text-muted">{{ pointer.id }}</small>
       </div>
 
@@ -183,6 +189,7 @@ export default {
       type: Boolean,
       default: true,
     },
+    selected: Boolean,
   },
 
   filters: {

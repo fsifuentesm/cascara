@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="inboxTop">
     <hero v-if="execution.loading"
       icon="spinner"
       title="commons.loading"
@@ -18,7 +18,9 @@
       <app-execution-card
         :execution="execution.data"
         :show-detail="true"
+        :selected-node="executionId === execution.data.id ? selectedNode : ''"
         v-on:click-username="$emit('click-username', $event);"
+        v-on:click-node="$emit('click-node', $event);"
       />
 
       <hr class="my-4"/>
@@ -70,7 +72,8 @@
           v-for="item in pointers.data" :key="item.id"
         >
           <app-pointer-card
-            :pointer='item'
+            :pointer="item"
+            :selected="item.node.id === selectedNode"
             :show-detail="true"
             v-on:complete="$emit('complete', item.id), reloadExecution()"
             v-on:click-username="$emit('click-username', $event);"
@@ -105,6 +108,9 @@ export default {
   props: {
     executionId: {
       required: true,
+    },
+    selectedNode: {
+      type: String,
     },
   },
 
@@ -245,6 +251,11 @@ export default {
       handler(newVal) {
         const vm = this;
         vm.fetchExecution(newVal);
+
+        const el = this.$refs.inboxTop;
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth' });
+        }
       },
       immediate: true,
     },

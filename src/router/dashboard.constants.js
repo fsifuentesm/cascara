@@ -12,7 +12,7 @@ function getCurrentUserUsername() {
 
 export const availableRoutes = Object.freeze([
   {
-    feed: 'myPendingTasks',
+    feed: 'myOngoingTasks',
     title: 'Mis tareas pendientes',
     description: 'Aquí podrás ver las tareas que te faltan por realizar',
     fixedPayload: {
@@ -35,16 +35,6 @@ export const availableRoutes = Object.freeze([
       pointerStatus: ['ongoing', 'finished', 'cancelled'],
       executionStatus: ['ongoing', 'finished', 'cancelled'],
       searchUsers: true,
-    },
-  },
-  {
-    feed: 'allPendingTasks',
-    title: 'Todas las tareas pendientes',
-    description: 'Estás viendo todas las tareas en curso, de todos los usuarios',
-    fixedPayload: {
-      objType: 'pointer',
-      executionStatus: ['ongoing'],
-      pointerStatus: ['ongoing'],
     },
   },
   {

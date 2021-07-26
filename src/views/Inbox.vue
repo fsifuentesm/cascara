@@ -1,214 +1,172 @@
 <template>
   <div
-    class="container-fluid p-0"
-    style="max-width: 1270px;"
     ref="inboxTop"
   >
-    <div class="row no-gutters"
-      v-if="!showRight"
+    <app-inbox-layout
+      :show-left="showLeft"
+      :show-center="showCenter"
+      :show-right="showRight"
     >
-      <div class="col">
-        <slot name="top">
-          <div class="px-3 py-2 text-center">
-            <h3>{{ title }}</h3>
-            <p>{{ description }}</p>
+      <template v-slot:top>
+        <div class="px-3 py-2 text-center">
+          <h3>{{ title }}</h3>
+          <p>{{ description }}</p>
+        </div>
+        <hr/>
+      </template>
+
+      <template v-slot:left>
+        <app-inbox-sidebar
+          :selected-search="feed"
+          :disabled="fixedPayload.loading"
+          :options="availableFeedOptions"
+          v-on:click-feed="selectFeed($event)"
+        />
+      </template>
+
+      <template v-slot:center>
+        <div class="container-fluid p-0">
+          <div class="row no-gutters mb-3">
+            <div class="col">
+              <b-card
+                v-if="!showLeft"
+                class="mb-3"
+              >
+                <b-form-select
+                  @change="selectFeed($event)"
+                  @input="selectFeed($event)"
+                  text-field="label"
+                  :value="feed"
+                  :disabled="fixedPayload.loading"
+                  :options="availableFeedOptions"
+                />
+              </b-card>
+
+              <b-card>
+                <span
+                  v-if="fixedPayload.loading"
+                >{{ $t("commons.loading") }}</span>
+
+                <app-inbox-search-card
+                  :fixed-args="fixedPayload.data"
+                  v-model="searchForm"
+                  v-on:submit="submitForm"
+                  :disabled="fixedPayload.loading"
+                />
+              </b-card>
+            </div>
           </div>
-          <hr/>
 
-        </slot>
-      </div>
-    </div>
-
-    <div class="row no-gutters">
-      <div v-if="showLeft"
-        :class="{
-          'col-2': showRight,
-          'col-3': !showRight,
-          'pr-2': showCenter,
-        }"
-      >
-        <slot name="left">
-          <app-inbox-sidebar
-            :selected-search="feed"
-            :search-options="availableFeedOptions"
-            v-on:click-feed="selectFeed($event)"
+          <hero v-if="listItems.loading"
+            icon="spinner"
+            title="commons.loading"
+            spin
           />
-        </slot>
-      </div>
 
-      <div v-if="showCenter"
-        :class="{
-          'col-3': showLeft && showRight,
-          'col-4': !showLeft && showRight,
-          'col-9': showLeft && !showRight,
-          'col-12': !showLeft && !showRight,
-          'pl-2': showLeft,
-          'pr-2': showRight,
-        }"
-      >
-        <slot name="center">
-          <div class="container-fluid p-0">
-            <div class="row no-gutters mb-3">
+          <div v-else-if="listItems.error"
+            class="text-center my-2"
+          >
+            <icon :icon="['fas', 'times']"/>
+            <span class="ml-1">Error al cargar elementos</span>
+          </div>
+
+          <div
+            v-else
+          >
+            <div class="row no-gutters mb-3"
+              v-if="!listItems.data.length"
+            >
               <div class="col">
-                <b-card
-                  v-if="!showLeft"
-                  class="mb-3"
-                >
-                  <b-form-select
-                    @change="selectFeed($event)"
-                    @input="selectFeed($event)"
-                    text-field="label"
-                    :value="feed"
-                    :options="availableFeedOptions"
-                  />
-                </b-card>
-
-                <b-card>
-                  <span v-if="searchForm && searchForm.searchText">
-                    Buscando: <b>"{{ searchForm.searchText }}"</b>
-                    <hr/>
-                  </span>
-
-                  <b-collapse :id="collapseId" v-model="visible">
-                    <app-inbox-search-card
-                      class="mb-3"
-                      :fixed-args="fixedPayload"
-                      v-model="searchForm"
-                      v-on:submit="submitForm"
-                    />
-                  </b-collapse>
-
-                  <div class="w-100 text-center">
-                    <a
-                      v-b-toggle="collapseId"
-                      href="#"
-                      @click.prevent
-                    >
-                      <span v-if="!visible">
-                        <icon :icon="['fas', 'caret-down']"/>
-                        Mostrar controles de busqueda</span>
-                      <span v-else>
-                        <icon :icon="['fas', 'caret-up']"/>
-                        Ocultar controles de busqueda</span>
-                    </a>
-                  </div>
-                </b-card>
+                <h4 class="text-center">No hay elementos para mostrar</h4>
+              </div>
+            </div>
+            <div v-else>
+              <div class="col text-right">
+                <span>Mostrando <b>{{ listItems.data.length }}</b>
+                de <b>{{ listItems.totalCount }}</b></span>
               </div>
             </div>
 
-            <hero v-if="listItems.loading"
+            <div class="row no-gutters mb-3"
+              v-for="item in listItems.data"
+              :key="item.id"
+            >
+              <div class="col">
+                <component
+                  :is="itemComponent(item)"
+                  :execution='item'
+                  :pointer='item'
+                  :show-execution='true'
+                  :show-detail="!showRight"
+                  :load-if-doable="false"
+                  :selected-node="item.id === executionId ? nodeId : ''"
+                  :selected="item.node ?
+                    (item.node.id === nodeId && item.execution.id === executionId) :
+                    false"
+                  v-on:complete="reloadPointer(item.id)"
+                  v-on:click-execution="handleItemClickExecution($event, item);"
+                  v-on:click-username="selectUser($event);"
+                  v-on:click-node="handleClickNode($event, item);"
+                >
+                  <template v-slot:content
+                    v-if="item.execution && item.execution.id"
+                  >
+                    <timeline-summary
+                      :execution-id="item.execution.id"
+                    />
+                  </template>
+                </component>
+              </div>
+            </div>
+
+            <hero v-if="olderItems.loading"
               icon="spinner"
               title="commons.loading"
               spin
             />
-            <div v-else-if="listItems.error"
-              class="text-center my-2"
+            <div class="row no-gutters mb-3"
+              v-else-if="listItems.data.length < listItems.totalCount"
             >
-              <icon :icon="['fas', 'times']"/>
-              <span class="ml-1">Error al cargar elementos</span>
-            </div>
-
-            <div
-              v-else
-            >
-              <div class="row no-gutters mb-3"
-                v-if="!listItems.data.length"
-              >
-                <div class="col">
-                  <h4 class="text-center">No hay elementos para mostrar</h4>
-                </div>
-              </div>
-              <div v-else>
-                <div class="col text-right">
-                  <span>Mostrando <b>{{ listItems.data.length }}</b>
-                  de <b>{{ listItems.totalCount }}</b></span>
-                </div>
-              </div>
-
-              <div class="row no-gutters mb-3"
-                v-for="item in listItems.data"
-                :key="item.id"
-              >
-                <div class="col">
-                  <component
-                    :is="itemComponent(item)"
-                    :execution='item'
-                    :pointer='item'
-                    :show-execution='true'
-                    :show-detail="!showRight"
-                    :load-if-doable="false"
-                    v-on:complete="reloadPointer(item.id)"
-                    v-on:click-execution="selectExecution($event);"
-                    v-on:click-username="selectUser($event);"
-                  >
-                    <template v-slot:content
-                      v-if="item.execution && item.execution.id"
-                    >
-                      <timeline-summary
-                        :execution-id="item.execution.id"
-                      />
-                    </template>
-                  </component>
-                </div>
-              </div>
-
-              <hero v-if="olderItems.loading"
-                icon="spinner"
-                title="commons.loading"
-                spin
-              />
-              <div class="row no-gutters mb-3"
-                v-else-if="listItems.data.length < listItems.totalCount"
-              >
-                <div class="col">
-                  <button
-                    type="button"
-                    class="btn btn-primary w-100"
-                    @click="loadMore"
-                  >Cargar más</button>
-                </div>
+              <div class="col">
+                <button
+                  type="button"
+                  class="btn btn-primary w-100"
+                  @click="loadMore"
+                >Cargar más</button>
               </div>
             </div>
           </div>
-        </slot>
-      </div>
+        </div>
+      </template>
 
-      <div v-if="showRight"
-        :class="{
-          'col-7': showLeft && showCenter,
-          'col-8': !showLeft && showCenter,
-          'col-12': !showLeft && !showCenter,
-          'pl-2': showCenter,
-        }"
-      >
-        <slot name="right">
+      <template v-slot:right>
+        <div>
+          <h3
+            class="text-center"
+          >Flujo de autorizacion</h3>
 
-          <div>
-            <h3
-              class="text-center"
-            >Flujo de autorizacion</h3>
-
-            <div
-              class="text-right my-2"
+          <div
+            class="text-right my-2"
+          >
+            <a
+              href="#"
+              v-on:click.prevent="selectExecution()"
             >
-              <a
-                href="#"
-                v-on:click.prevent="selectExecution()"
-              >
-                <icon :icon="['fas', 'arrow-circle-left']"/>
-                <span class="ml-1">Volver al buscador</span>
-              </a>
-            </div>
-
-            <app-inbox-execution-timeline
-              :execution-id="executionId"
-              v-on:complete="reloadPointer($event)"
-              v-on:click-username="selectUser($event);"
-            />
+              <icon :icon="['fas', 'arrow-circle-left']"/>
+              <span class="ml-1">Volver al buscador</span>
+            </a>
           </div>
-        </slot>
-      </div>
-    </div>
+
+          <app-inbox-execution-timeline
+            :execution-id="executionId"
+            :selected-node="nodeId"
+            v-on:complete="reloadPointer($event)"
+            v-on:click-username="selectUser($event);"
+            v-on:click-node="handleClickNode($event, executionId);"
+          />
+        </div>
+      </template>
+    </app-inbox-layout>
   </div>
 </template>
 
@@ -220,45 +178,38 @@ import { EventBus } from '../event-bus';
 
 export default {
   props: {
-    title: {
-      type: String,
-      required: true,
+    routeDefinitions: Array,
+    required: true,
+    validator: function validator(value) {
+      return value.length > 1;
     },
-    description: {
-      type: String,
-      required: true,
-    },
-    feed: {
-      type: String,
-      required: true,
-    },
-    executionId: String,
-    query: String,
-    notified: Array,
-    actored: Array,
-    fixedPayload: Object,
-    payload: Object,
-    availableFeedOptions: Array,
   },
 
   data() {
     return {
-      uuid: Math.random(),
-      visible: false,
+      title: '',
+      description: '',
+      feed: '',
+      executionId: '',
+      nodeId: '',
+      fixedPayload: {
+        data: {},
+        loading: false,
+      },
+      payload: {},
+      availableFeedOptions: [],
 
-      baseForm: {
+      searchForm: {
         searchText: '',
         objType: 'execution',
-        pointerStatus: ['ongoing', 'finished', 'cancelled'],
-        executionStatus: ['ongoing', 'finished', 'cancelled'],
+        pointerStatus: ['ongoing', 'cancelled', 'finished'],
+        executionStatus: ['ongoing', 'cancelled', 'finished'],
         minDate: null,
         maxDate: null,
         searchUsers: false,
         notifiedUsers: null,
         actoredUsers: null,
       },
-
-      searchForm: null, // built based on prop
 
       listItems: {
         data: [],
@@ -280,13 +231,6 @@ export default {
   },
 
   computed: {
-    collapseId() {
-      const vm = this;
-      const modalId = `collapse-${vm.uuid}`;
-
-      return modalId;
-    },
-
     showLeft() {
       return (
         (this.showRight === false && (this.$mq === 'md' || this.$mq === 'lg')) ||
@@ -307,8 +251,39 @@ export default {
   },
 
   methods: {
+    compareItems(a, b) {
+      const dateA = moment(a.started_at);
+      const dateB = moment(b.started_at);
+
+      if (dateA < dateB) { return 1; }
+      if (dateA > dateB) { return -1; }
+      return 0;
+    },
+
     handleMessage() {
       this.loadRecent();
+    },
+
+    handleClickNode(v, item) {
+      this.nodeId = v;
+      if (item.execution) {
+        this.executionId = item.execution.id;
+      } else if (item.id) {
+        this.executionId = item.id;
+      } else {
+        this.executionId = item;
+      }
+
+      this.updateRoute();
+    },
+
+    handleItemClickExecution(v, item) {
+      if (item.node) {
+        this.nodeId = item.node.id;
+      }
+
+      this.executionId = v;
+      this.updateRoute();
     },
 
     handleSelectSearch: _.debounce(function handleSelectSearch(form) {
@@ -347,14 +322,7 @@ export default {
             }
           });
 
-          vm.listItems.data.sort((a, b) => {
-            const dateA = moment(a.started_at);
-            const dateB = moment(b.started_at);
-
-            if (dateA < dateB) { return 1; }
-            if (dateA > dateB) { return -1; }
-            return 0;
-          });
+          vm.listItems.data.sort(vm.compareItems);
 
           vm.listItems.totalCount = totalCount;
           vm.listItems.loading = false;
@@ -421,14 +389,7 @@ export default {
             }
           });
 
-          vm.listItems.data.sort((a, b) => {
-            const dateA = moment(a.started_at);
-            const dateB = moment(b.started_at);
-
-            if (dateA < dateB) { return 1; }
-            if (dateA > dateB) { return -1; }
-            return 0;
-          });
+          vm.listItems.data.sort(vm.compareItems);
 
           vm.recentItems.loading = false;
         }).catch(() => {
@@ -480,14 +441,7 @@ export default {
             }
           });
 
-          vm.listItems.data.sort((a, b) => {
-            const dateA = moment(a.started_at);
-            const dateB = moment(b.started_at);
-
-            if (dateA < dateB) { return 1; }
-            if (dateA > dateB) { return -1; }
-            return 0;
-          });
+          vm.listItems.data.sort(vm.compareItems);
 
           vm.olderItems.loading = false;
         }).catch(() => {
@@ -507,139 +461,164 @@ export default {
     },
 
     selectFeed(newFeed) {
-      const newRoute = {
+      this.$router.push({
         name: this.$route.name,
-        params: { ...this.$route.params },
-        query: { ...this.$route.query },
-      };
-
-      newRoute.query.feed = newFeed;
-
-      this.$router.push(newRoute);
+        query: Object.assign(
+          {},
+          this.$route.query,
+          { feed: newFeed },
+        ),
+      });
     },
 
     selectExecution(newExecution) {
-      const newRoute = {
-        name: this.$route.name,
-        params: { ...this.$route.params },
-        query: { ...this.$route.query },
-      };
-
-      if (newExecution) {
-        newRoute.query.exe = newExecution;
-
-        const el = this.$refs.inboxTop;
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth' });
-        }
-      } else {
-        delete newRoute.query.exe;
-      }
-
-      this.$router.push(newRoute);
+      this.executionId = newExecution;
+      this.updateRoute();
     },
 
     selectUser(username) {
-      const newRoute = {
-        name: this.$route.name,
-        params: { ...this.$route.params },
-        query: { ...this.$route.query },
-      };
+      this.feed = 'general';
+      this.searchForm.actoredUsers = [username];
+      this.searchForm.notifiedUsers = [username];
+      this.searchForm.searchUsers = true;
+      this.searchForm.searchText = '';
+      this.searchForm.objType = 'pointer';
+      this.searchForm.pointerStatus = ['ongoing', 'finished', 'cancelled'];
+      this.searchForm.executionStatus = ['ongoing', 'finished', 'cancelled'];
+      this.searchForm.minDate = '';
+      this.searchForm.maxDate = '';
 
-      newRoute.query.feed = 'general';
-
-      newRoute.query.objType = 'pointer';
-      newRoute.query.searchUsers = true;
-      newRoute.query.notifiedUsers = username;
-      newRoute.query.actoredUsers = username;
-
-      this.$router.push(newRoute);
+      this.handleSelectSearch(Object.assign({}, this.searchForm, this.fixedPayload.data));
+      this.updateRoute();
     },
 
     submitForm(form) {
-      this.searchForm = form;
-      this.updateUrl(form);
-      this.handleSelectSearch(form);
+      this.searchForm = Object.assign({}, form, this.fixedPayload.data);
+      this.handleSelectSearch(Object.assign({}, form, this.fixedPayload.data));
+      this.updateRoute();
     },
 
-    updateUrl(form) {
-      const newRoute = {
-        name: this.$route.name,
-        params: { ...this.$route.params },
-        query: { ...this.$route.query },
+    updateRoute() {
+      const query = {
+        executionId: this.executionId,
+        nodeId: this.nodeId,
+        feed: this.feed,
       };
 
-      if (form.searchText) {
-        newRoute.query.searchText = form.searchText;
-      } else {
-        delete newRoute.query.searchText;
-      }
-
-      if (form.objType) {
-        newRoute.query.objType = form.objType;
-      } else {
-        delete newRoute.query.objType;
-      }
-
-      if (Array.isArray(form.pointerStatus)
-        && form.pointerStatus.length) {
-        newRoute.query.pointerStatus = form.pointerStatus.join(',');
-      } else {
-        delete newRoute.query.pointerStatus;
-      }
-
-      if (Array.isArray(form.executionStatus)
-        && form.executionStatus.length) {
-        newRoute.query.executionStatus = form.executionStatus.join(',');
-      } else {
-        delete newRoute.query.executionStatus;
-      }
-
-      if (form.minDate) {
-        newRoute.query.minDate = form.minDate;
-      } else {
-        delete newRoute.query.minDate;
-      }
-
-      if (form.maxDate) {
-        newRoute.query.maxDate = form.maxDate;
-      } else {
-        delete newRoute.query.maxDate;
-      }
-
-      if (form.searchUsers) {
-        newRoute.query.searchUsers = form.searchUsers;
-      } else {
-        delete newRoute.query.searchUsers;
-      }
-
-      if (Array.isArray(form.actoredUsers)
-        && form.actoredUsers.length) {
-        newRoute.query.actoredUsers = form.actoredUsers.join(',');
-      } else {
-        delete newRoute.query.actoredUsers;
-      }
-
-      if (Array.isArray(form.notifiedUsers)
-        && form.notifiedUsers.length) {
-        newRoute.query.notifiedUsers = form.notifiedUsers.join(',');
-      } else {
-        delete newRoute.query.notifiedUsers;
-      }
-
-      Object.keys(this.fixedPayload).forEach((k) => {
-        delete newRoute.query[k];
+      Object.keys(this.searchForm).forEach((k) => {
+        if (Array.isArray(this.searchForm[k])) {
+          query[k] = this.searchForm[k].join(',');
+        } else {
+          query[k] = this.searchForm[k];
+        }
       });
 
-      this.$router.push(newRoute);
+      Object.keys(this.fixedPayload.data).forEach((k) => {
+        delete query[k];
+      });
+
+      this.$router.push({
+        name: this.$router.name,
+        query,
+      });
+    },
+
+    setFeedData(feed) {
+      const vm = this;
+
+      const actualRoute = vm.routeDefinitions.find(x => x.feed === feed);
+      this.availableFeedOptions = vm.routeDefinitions.map(x => ({
+        label: x.title,
+        value: x.feed,
+      }));
+
+      if (!actualRoute) {
+        vm.title = 'Tablero';
+        vm.description = 'Bienvenido';
+        vm.feed = feed;
+        vm.fixedPayload.loading = false;
+      } else {
+        vm.title = actualRoute.title;
+        vm.description = actualRoute.description;
+        vm.feed = actualRoute.feed;
+        vm.fixedPayload.loading = true;
+
+        const fs = Object.keys(actualRoute.fixedPayload)
+          .map((k) => {
+            if (typeof actualRoute.fixedPayload[k] === 'function') {
+              return Promise.resolve(actualRoute.fixedPayload[k]())
+                .then(v => [k, v]);
+            }
+            return Promise.resolve(actualRoute.fixedPayload[k])
+              .then(v => [k, v]);
+          });
+
+        Promise.all(fs).then((values) => {
+          const map = new Map(values);
+          const obj = Object.fromEntries(map);
+          vm.fixedPayload = {
+            data: obj,
+            loading: false,
+          };
+        });
+      }
+    },
+
+    setQueryData(urlQuery) {
+      if (urlQuery.executionId) {
+        this.executionId = urlQuery.executionId;
+      }
+
+      const newSearchForm = {};
+
+      if (urlQuery.searchText) {
+        newSearchForm.searchText = urlQuery.searchText;
+      }
+
+      if (urlQuery.objType) {
+        newSearchForm.objType = urlQuery.objType;
+      }
+
+      if (urlQuery.pointerStatus) {
+        newSearchForm.pointerStatus = urlQuery.pointerStatus.split(',');
+      }
+
+      if (urlQuery.executionStatus) {
+        newSearchForm.executionStatus = urlQuery.executionStatus.split(',');
+      }
+
+      if (urlQuery.minDate) {
+        newSearchForm.minDate = urlQuery.minDate;
+      }
+
+      if (urlQuery.maxDate) {
+        newSearchForm.maxDate = urlQuery.maxDate;
+      }
+
+      if (urlQuery.searchUsers) {
+        newSearchForm.searchUsers = urlQuery.searchUsers;
+      }
+
+      if (urlQuery.notifiedUsers) {
+        newSearchForm.notifiedUsers = urlQuery.notifiedUsers.split(',');
+      }
+
+      if (urlQuery.actoredUsers) {
+        newSearchForm.actoredUsers = urlQuery.actoredUsers.split(',');
+      }
+
+      this.searchForm = Object.assign({}, this.searchForm, newSearchForm);
     },
   },
 
-  mounted() {
+  async mounted() {
     EventBus.$on('execution_update', this.handleMessage);
     EventBus.$on('execution_delete', this.handleMessage);
     EventBus.$on('execution_patch', this.handleMessage);
     EventBus.$on('execution_create', this.handleMessage);
+
+    this.setFeedData(this.$route.query.feed || this.routeDefinitions[0].feed);
+    this.setQueryData(this.$route.query);
   },
 
   beforeDestroy() {
@@ -649,25 +628,30 @@ export default {
     EventBus.$off('execution_create', this.handleMessage);
   },
 
+  beforeRouteUpdate(to, from, next) {
+    if (to.query.feed !== from.query.feed) {
+      this.setFeedData(to.query.feed);
+    }
+
+    this.setQueryData(to.query);
+    next();
+  },
+
   watch: {
     fixedPayload: {
-      immediate: true,
       handler(newVal, oldVal) {
-        if (
-          !oldVal ||
-          (JSON.stringify(newVal) !== JSON.stringify(oldVal))
-        ) {
-          this.handleSelectSearch(Object.assign({}, this.baseForm, this.payload, newVal));
+        if (newVal.loading === false) {
+          if (JSON.stringify(newVal.data) !== JSON.stringify(oldVal.data)) {
+            this.handleSelectSearch(Object.assign({}, this.searchForm, newVal.data));
+          }
         }
       },
     },
-    payload: {
+
+    searchForm: {
       handler(newVal, oldVal) {
-        if (
-          !oldVal ||
-          (JSON.stringify(newVal) !== JSON.stringify(oldVal))
-        ) {
-          this.handleSelectSearch(Object.assign({}, this.baseForm, newVal, this.fixedPayload));
+        if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
+          this.handleSelectSearch(Object.assign({}, newVal, this.fixedPayload.data));
         }
       },
     },

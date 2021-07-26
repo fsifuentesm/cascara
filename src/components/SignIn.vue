@@ -149,12 +149,17 @@ export default {
         $router.push(redirect);
       });
     },
-  },
 
-  mounted() {
-    const vm = this;
+    connect() {
+      this.disconnect();
 
-    if (process.env.SSE_ENABLED) {
+      const vm = this;
+
+      if (!process.env.SSE_ENABLED) { return; }
+
+      vm.online = true;
+      vm.showAlert = false;
+
       vm.sseClient = vm.$sse.create({
         format: 'json',
         polyfill: true,
@@ -168,19 +173,35 @@ export default {
       });
 
       vm.sseClient.connect().then(() => {
-        vm.online = true;
-        vm.showAlert = false;
       }).catch(() => {
         vm.online = false;
         vm.showAlert = true;
       });
-    }
+    },
+
+    disconnect() {
+      const vm = this;
+
+      if (vm.sseClient) {
+        vm.sseClient.disconnect();
+        vm.sseClient = null;
+      }
+    },
   },
 
   beforeDestroy() {
-    if (this.sseClient) {
-      this.sseClient.disconnect();
-    }
+    this.disconnect();
+  },
+
+  watch: {
+    online: {
+      immediate: true,
+      handler(newVal) {
+        if (!newVal) {
+          setTimeout(this.connect, 5000);
+        }
+      },
+    },
   },
 };
 </script>

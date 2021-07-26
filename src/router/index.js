@@ -47,6 +47,8 @@ export default new Router({
                 feed: 'general',
                 objType: 'pointer',
                 searchText: to.params.id,
+                pointerStatus: ['ongoing', 'cancelled', 'finished'].join(','),
+                executionStatus: ['ongoing', 'cancelled', 'finished'].join(','),
               },
             }
           ),

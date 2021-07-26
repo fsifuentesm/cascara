@@ -3,8 +3,11 @@
     class="card no-body py-3 shadow"
   >
     <div class="container-fluid">
-      <div class="d-flex justify-content-between">
-        <small class="text-muted">Flujo de autorización</small>
+      <div class="d-flex justify-content-between mb-2">
+        <small class="text-muted">
+          <span class="badge badge-pill badge-primary"
+          >Flujo de autorización</span>
+        </small>
         <small class="text-muted">{{ execution.id }}</small>
       </div>
 
@@ -120,6 +123,7 @@
             v-else
             :nodes="steps"
             @click="$emit('click-node', $event)"
+            :selected-node="selectedNode"
           />
         </div>
       </div>
@@ -157,6 +161,9 @@ export default {
     showDetail: {
       type: Boolean,
       default: false,
+    },
+    selectedNode: {
+      type: String,
     },
   },
 
