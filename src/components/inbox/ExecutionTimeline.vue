@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="inboxTop">
     <hero v-if="execution.loading"
       icon="spinner"
       title="commons.loading"
@@ -251,6 +251,9 @@ export default {
       handler(newVal) {
         const vm = this;
         vm.fetchExecution(newVal);
+
+        const el = this.$refs.inboxTop;
+        el.scrollIntoView({ behavior: 'smooth' });
       },
       immediate: true,
     },
