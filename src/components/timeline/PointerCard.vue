@@ -6,8 +6,11 @@
     }"
   >
     <div class="container-fluid">
-      <div class="d-flex justify-content-between">
-        <small class="text-muted">Tarea</small>
+      <div class="d-flex justify-content-between mb-2">
+        <small class="text-muted">
+          <span class="badge badge-pill badge-secondary"
+          >Tarea</span>
+        </small>
         <small class="text-muted">{{ pointer.id }}</small>
       </div>
 
