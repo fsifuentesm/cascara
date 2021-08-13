@@ -206,17 +206,7 @@ export default {
       payload: {},
       availableFeedOptions: [],
 
-      searchForm: {
-        searchText: '',
-        objType: 'execution',
-        pointerStatus: ['ongoing', 'cancelled', 'finished'],
-        executionStatus: ['ongoing', 'cancelled', 'finished'],
-        minDate: null,
-        maxDate: null,
-        searchUsers: false,
-        notifiedUsers: null,
-        actoredUsers: null,
-      },
+      searchForm: Object.assign({}, this.defaultForm),
 
       listItems: {
         data: [],
@@ -295,8 +285,6 @@ export default {
 
     handleSelectSearch: _.debounce(function handleSelectSearch(form) {
       const vm = this;
-
-      if (vm.listItems.loading) { return; }
 
       vm.searchForm = form;
 
@@ -475,7 +463,6 @@ export default {
         name: this.$route.name,
         query: Object.assign(
           {},
-          this.$route.query,
           { feed: newFeed },
         ),
       });
@@ -641,10 +628,11 @@ export default {
   beforeRouteUpdate(to, from, next) {
     if (to.query.feed !== from.query.feed) {
       this.setFeedData(to.query.feed);
+      next();
+    } else {
+      this.setQueryData(to.query);
+      next();
     }
-
-    this.setQueryData(to.query);
-    next();
   },
 
   watch: {
