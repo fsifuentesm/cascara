@@ -10,6 +10,18 @@ function getCurrentUserUsername() {
   return '';
 }
 
+export const baseSearchForm = Object.freeze({
+  searchText: '',
+  objType: 'execution',
+  pointerStatus: ['ongoing', 'cancelled', 'finished'],
+  executionStatus: ['ongoing', 'cancelled', 'finished'],
+  minDate: null,
+  maxDate: null,
+  searchUsers: false,
+  notifiedUsers: null,
+  actoredUsers: null,
+});
+
 export const availableRoutes = Object.freeze([
   {
     feed: 'myOngoingTasks',
