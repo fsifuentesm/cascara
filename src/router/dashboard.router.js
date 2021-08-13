@@ -1,6 +1,6 @@
 import Vue from 'vue';
 
-import { availableRoutes } from './dashboard.constants';
+import { availableRoutes, baseSearchForm } from './dashboard.constants';
 
 export const routes = [
   {
@@ -9,6 +9,7 @@ export const routes = [
     component: Vue.component('app-inbox'),
     props: {
       routeDefinitions: availableRoutes,
+      defaultForm: baseSearchForm,
     },
     beforeEnter(to, from, next) {
       if (!availableRoutes.map(x => x.feed).includes(to.query.feed)) {

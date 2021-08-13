@@ -49,6 +49,7 @@
 
                 <app-inbox-search-card
                   :fixed-args="fixedPayload.data"
+                  :default-form="defaultForm"
                   v-model="searchForm"
                   v-on:submit="submitForm"
                   :disabled="fixedPayload.loading"
@@ -178,10 +179,16 @@ import { EventBus } from '../event-bus';
 
 export default {
   props: {
-    routeDefinitions: Array,
-    required: true,
-    validator: function validator(value) {
-      return value.length > 1;
+    routeDefinitions: {
+      type: Array,
+      required: true,
+      validator: function validator(value) {
+        return value.length > 1;
+      },
+    },
+    defaultForm: {
+      type: Object,
+      required: true,
     },
   },
 
@@ -288,6 +295,9 @@ export default {
 
     handleSelectSearch: _.debounce(function handleSelectSearch(form) {
       const vm = this;
+
+      if (vm.listItems.loading) { return; }
+
       vm.searchForm = form;
 
       vm.listItems.data = [];
@@ -642,7 +652,7 @@ export default {
       handler(newVal, oldVal) {
         if (newVal.loading === false) {
           if (JSON.stringify(newVal.data) !== JSON.stringify(oldVal.data)) {
-            this.handleSelectSearch(Object.assign({}, this.searchForm, newVal.data));
+            this.handleSelectSearch(Object.assign({}, this.defaultForm, newVal.data));
           }
         }
       },

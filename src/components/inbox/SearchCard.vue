@@ -156,6 +156,10 @@ export default {
       type: Object,
       required: true,
     },
+    defaultForm: {
+      type: Object,
+      required: true,
+    },
     disabled: {
       type: Boolean,
       default: false,
@@ -167,17 +171,6 @@ export default {
       uuid: Math.random(),
       visible: false,
 
-      baseForm: {
-        searchText: '',
-        objType: 'execution',
-        pointerStatus: [],
-        executionStatus: [],
-        minDate: null,
-        maxDate: null,
-        searchUsers: false,
-        notifiedUsers: null,
-        actoredUsers: null,
-      },
       searchForm: Object.assign(this.value),
 
       objTypeOptions: [
@@ -240,13 +233,13 @@ export default {
   watch: {
     fixedArgs: {
       handler(newVal) {
-        this.searchForm = Object.assign({}, this.baseForm, this.value, newVal);
+        this.searchForm = Object.assign({}, this.defaultForm, this.value, newVal);
       },
     },
 
     value: {
       handler(newVal) {
-        this.searchForm = Object.assign({}, this.baseForm, newVal, this.fixedArgs);
+        this.searchForm = Object.assign({}, this.defaultForm, newVal, this.fixedArgs);
       },
     },
   },
