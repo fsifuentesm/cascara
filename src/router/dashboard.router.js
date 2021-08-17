@@ -11,20 +11,6 @@ export const routes = [
       routeDefinitions: availableRoutes,
       defaultForm: baseSearchForm,
     },
-    beforeEnter(to, from, next) {
-      if (!availableRoutes.map(x => x.feed).includes(to.query.feed)) {
-        next({
-          name: 'dashboard',
-          query: Object.assign(
-            {},
-            to.query,
-            { feed: availableRoutes[0].feed },
-          ),
-        });
-      } else {
-        next();
-      }
-    },
   },
 ];
 
