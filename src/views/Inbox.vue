@@ -199,12 +199,11 @@ export default {
       feed: '',
       executionId: '',
       nodeId: '',
+
       fixedPayload: {
         data: {},
         loading: false,
       },
-      payload: {},
-      availableFeedOptions: [],
 
       searchForm: Object.assign({}, this.defaultForm),
 
@@ -245,6 +244,17 @@ export default {
     showRight() {
       return !!this.executionId;
     },
+
+    availableFeedOptions() {
+      if (Array.isArray(this.routeDefinitions)) {
+        return this.routeDefinitions.map(x => ({
+          label: x.title,
+          value: x.feed,
+        }));
+      }
+
+      return [];
+    },
   },
 
   methods: {
@@ -280,13 +290,12 @@ export default {
       }
 
       this.executionId = v;
+
       this.updateRoute();
     },
 
-    handleSelectSearch: _.debounce(function handleSelectSearch(form) {
+    loadInitial: _.debounce(function loadInitial() {
       const vm = this;
-
-      vm.searchForm = form;
 
       vm.listItems.data = [];
       vm.listItems.loading = true;
@@ -309,6 +318,12 @@ export default {
         serviceCallback = vm.$pointerService.getPointers;
       } else if (payload.objType === 'execution') {
         serviceCallback = vm.$executionService.getExecutions;
+      }
+
+      if (!serviceCallback) {
+        vm.listItems.loading = false;
+        vm.listItems.error = true;
+        return;
       }
 
       serviceCallback(payload)
@@ -458,18 +473,9 @@ export default {
       return 'app-pointer-card';
     },
 
-    selectFeed(newFeed) {
-      this.$router.push({
-        name: this.$route.name,
-        query: Object.assign(
-          {},
-          { feed: newFeed },
-        ),
-      });
-    },
-
     selectExecution(newExecution) {
       this.executionId = newExecution;
+
       this.updateRoute();
     },
 
@@ -485,28 +491,145 @@ export default {
       this.searchForm.minDate = '';
       this.searchForm.maxDate = '';
 
-      this.handleSelectSearch(Object.assign({}, this.searchForm, this.fixedPayload.data));
+      this.searchForm = Object.assign(
+        {},
+        this.defaultForm,
+        this.searchForm,
+        this.fixedPayload.data,
+      );
+      this.loadInitial();
+
       this.updateRoute();
     },
 
     submitForm(form) {
-      this.searchForm = Object.assign({}, form, this.fixedPayload.data);
-      this.handleSelectSearch(Object.assign({}, form, this.fixedPayload.data));
+      this.searchForm = Object.assign(
+        {},
+        form,
+        this.fixedPayload.data,
+      );
+      this.loadInitial();
+
       this.updateRoute();
     },
 
     updateRoute() {
-      const query = {
-        executionId: this.executionId,
-        nodeId: this.nodeId,
-        feed: this.feed,
-      };
+      const query = this.buildQueryData();
+      this.$router.push({
+        name: this.$router.name,
+        query,
+      });
+    },
 
-      Object.keys(this.searchForm).forEach((k) => {
-        if (Array.isArray(this.searchForm[k])) {
-          query[k] = this.searchForm[k].join(',');
+    selectFeed(newFeed) {
+      this.$router.push({
+        name: this.$route.name,
+        query: { feed: newFeed },
+      });
+    },
+
+    setFeedData(feed) {
+      const vm = this;
+
+      const actualRoute = vm.routeDefinitions
+        .find(x => x.feed === feed) || vm.routeDefinitions[0];
+      if (!actualRoute) { return new Promise(); }
+
+      vm.title = actualRoute.title;
+      vm.description = actualRoute.description;
+      vm.feed = actualRoute.feed;
+      vm.fixedPayload.loading = true;
+
+      const fs = Object.keys(actualRoute.fixedPayload)
+        .map((k) => {
+          if (typeof actualRoute.fixedPayload[k] === 'function') {
+            return Promise.resolve(actualRoute.fixedPayload[k]())
+              .then(v => [k, v]);
+          }
+          return Promise.resolve(actualRoute.fixedPayload[k])
+            .then(v => [k, v]);
+        });
+
+      return Promise.all(fs).then((values) => {
+        const map = new Map(values);
+        const obj = Object.fromEntries(map);
+        vm.fixedPayload = {
+          data: obj,
+          loading: false,
+        };
+      });
+    },
+
+    setQueryData() {
+      const vm = this;
+
+      const urlQuery = this.$route.query;
+
+      if (urlQuery.executionId) {
+        this.executionId = urlQuery.executionId;
+      } else {
+        this.executionId = null;
+      }
+
+      if (urlQuery.nodeId) {
+        this.nodeId = urlQuery.nodeId;
+      } else {
+        this.nodeId = null;
+      }
+
+      if (urlQuery.pointerId) {
+        this.pointerId = urlQuery.pointerId;
+      } else {
+        this.pointerId = null;
+      }
+
+      const newSearchForm = {};
+
+      Object.keys(vm.defaultForm).filter(x => urlQuery[x]).forEach((k) => {
+        if ([
+          'actoredUsers',
+          'notifiedUsers',
+          'pointerStatus',
+          'executionStatus',
+        ].includes(k) && (
+          typeof urlQuery[k] === 'string' || urlQuery[k] instanceof String
+        )) {
+          newSearchForm[k] = urlQuery[k].split(',');
         } else {
-          query[k] = this.searchForm[k];
+          newSearchForm[k] = urlQuery[k];
+        }
+      });
+
+      this.searchForm = Object.assign(
+        {},
+        this.defaultForm,
+        newSearchForm,
+        this.fixedPayload.data,
+      );
+    },
+
+    buildQueryData() {
+      const vm = this;
+
+      const query = { };
+
+      if (this.feed) {
+        query.feed = this.feed;
+      }
+
+      if (this.executionId) {
+        query.executionId = this.executionId;
+      }
+
+      if (this.nodeId) {
+        query.nodeId = this.nodeId;
+      }
+
+      Object.keys(vm.searchForm).forEach((k) => {
+        if (Array.isArray(vm.searchForm[k])) {
+          query[k] = vm.searchForm[k].join(',');
+        } else {
+          query[k] = vm.searchForm[k];
         }
       });
 
@@ -514,108 +637,28 @@ export default {
         delete query[k];
       });
 
-      this.$router.push({
-        name: this.$router.name,
-        query,
+      Object.keys(this.searchForm).forEach((k) => {
+        if (!this.searchForm[k]) {
+          delete query[k];
+        }
       });
-    },
 
-    setFeedData(feed) {
-      const vm = this;
-
-      const actualRoute = vm.routeDefinitions.find(x => x.feed === feed);
-      this.availableFeedOptions = vm.routeDefinitions.map(x => ({
-        label: x.title,
-        value: x.feed,
-      }));
-
-      if (!actualRoute) {
-        vm.title = 'Tablero';
-        vm.description = 'Bienvenido';
-        vm.feed = feed;
-        vm.fixedPayload.loading = false;
-      } else {
-        vm.title = actualRoute.title;
-        vm.description = actualRoute.description;
-        vm.feed = actualRoute.feed;
-        vm.fixedPayload.loading = true;
-
-        const fs = Object.keys(actualRoute.fixedPayload)
-          .map((k) => {
-            if (typeof actualRoute.fixedPayload[k] === 'function') {
-              return Promise.resolve(actualRoute.fixedPayload[k]())
-                .then(v => [k, v]);
-            }
-            return Promise.resolve(actualRoute.fixedPayload[k])
-              .then(v => [k, v]);
-          });
-
-        Promise.all(fs).then((values) => {
-          const map = new Map(values);
-          const obj = Object.fromEntries(map);
-          vm.fixedPayload = {
-            data: obj,
-            loading: false,
-          };
-        });
-      }
-    },
-
-    setQueryData(urlQuery) {
-      if (urlQuery.executionId) {
-        this.executionId = urlQuery.executionId;
-      }
-
-      const newSearchForm = {};
-
-      if (urlQuery.searchText) {
-        newSearchForm.searchText = urlQuery.searchText;
-      }
-
-      if (urlQuery.objType) {
-        newSearchForm.objType = urlQuery.objType;
-      }
-
-      if (urlQuery.pointerStatus) {
-        newSearchForm.pointerStatus = urlQuery.pointerStatus.split(',');
-      }
-
-      if (urlQuery.executionStatus) {
-        newSearchForm.executionStatus = urlQuery.executionStatus.split(',');
-      }
-
-      if (urlQuery.minDate) {
-        newSearchForm.minDate = urlQuery.minDate;
-      }
-
-      if (urlQuery.maxDate) {
-        newSearchForm.maxDate = urlQuery.maxDate;
-      }
-
-      if (urlQuery.searchUsers) {
-        newSearchForm.searchUsers = urlQuery.searchUsers;
-      }
-
-      if (urlQuery.notifiedUsers) {
-        newSearchForm.notifiedUsers = urlQuery.notifiedUsers.split(',');
-      }
-
-      if (urlQuery.actoredUsers) {
-        newSearchForm.actoredUsers = urlQuery.actoredUsers.split(',');
-      }
-
-      this.searchForm = Object.assign({}, this.searchForm, newSearchForm);
+      return query;
     },
   },
 
-  async mounted() {
+  mounted() {
     EventBus.$on('execution_update', this.handleMessage);
     EventBus.$on('execution_delete', this.handleMessage);
     EventBus.$on('execution_patch', this.handleMessage);
     EventBus.$on('execution_create', this.handleMessage);
 
-    this.setFeedData(this.$route.query.feed || this.routeDefinitions[0].feed);
-    this.setQueryData(this.$route.query);
+    const vm = this;
+    vm.setFeedData(vm.$route.query.feed)
+      .then(() => {
+        vm.setQueryData();
+        vm.loadInitial();
+      });
   },
 
   beforeDestroy() {
@@ -626,33 +669,23 @@ export default {
   },
 
   beforeRouteUpdate(to, from, next) {
+    const vm = this;
+
+    let bReload = !vm.listItems.data;
     if (to.query.feed !== from.query.feed) {
-      this.setFeedData(to.query.feed);
-      next();
-    } else {
-      this.setQueryData(to.query);
-      next();
+      bReload = true;
     }
-  },
 
-  watch: {
-    fixedPayload: {
-      handler(newVal, oldVal) {
-        if (newVal.loading === false) {
-          if (JSON.stringify(newVal.data) !== JSON.stringify(oldVal.data)) {
-            this.handleSelectSearch(Object.assign({}, this.defaultForm, newVal.data));
-          }
-        }
-      },
-    },
+    vm.setFeedData(to.query.feed)
+      .then(() => {
+        vm.setQueryData();
 
-    searchForm: {
-      handler(newVal, oldVal) {
-        if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
-          this.handleSelectSearch(Object.assign({}, newVal, this.fixedPayload.data));
+        if (bReload) {
+          vm.loadInitial();
         }
-      },
-    },
+      });
+
+    next();
   },
 };
 </script>
