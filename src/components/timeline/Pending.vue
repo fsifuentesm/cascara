@@ -61,10 +61,10 @@
           >
             <span v-if="!visible">
               <icon :icon="['fas', 'caret-down']"/>
-              <b>Resolver tarea</b></span>
+              {{ $t('commons.showPointerDetail') }}</span>
             <span v-else>
               <icon :icon="['fas', 'caret-up']"/>
-              <b>Dejar tarea para despues</b></span>
+              {{ $t('commons.hidePointerDetail') }}</span>
           </a>
         </div>
       </div>
