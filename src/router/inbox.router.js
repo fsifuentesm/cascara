@@ -19,7 +19,7 @@ export const routes = [
         name: 'dashboard',
         query: {
           feed: 'general',
-          exe: to.params.id,
+          executionId: to.params.id,
         },
       }
     ),
@@ -32,7 +32,7 @@ export const routes = [
         name: 'dashboard',
         query: {
           feed: 'general',
-          exe: to.params.id,
+          executionId: to.params.id,
           objType: 'pointer',
           searchText: to.params.pid,
         },

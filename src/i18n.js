@@ -89,6 +89,10 @@ const messages = {
         description: 'Este es un usuario designado a realizar pruebas del sistema.',
         contact: 'Para mayor información contacte a:',
       },
+      hideExecutionDetail: 'Ocultar detalle',
+      showExecutionDetail: 'Mostrar detalle',
+      hidePointerDetail: 'Ocultar detalle',
+      showPointerDetail: 'Mostrar detalle',
     },
     validation: {
       required: 'Este campo es requerido',
@@ -231,6 +235,10 @@ const messages = {
         description: 'This a user for testing purposes.',
         contact: 'For more info please email us to:',
       },
+      hideExecutionDetail: 'Hide detail',
+      showExecutionDetail: 'Show detail',
+      hidePointerDetail: 'Hide detail',
+      showPointerDetail: 'Show detail',
     },
     errors: {
       request: {

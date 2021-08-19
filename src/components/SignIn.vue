@@ -121,22 +121,22 @@ export default {
           const errRes = err.response;
           if (!errRes) {
             this.errorMessage = 'offline';
+          } else {
+            const a = errRes.json();
+            a.then((res) => {
+              const code = res.errors[0].code;
+
+              if ([
+                'error_signin',
+                'validation.invalid',
+                'validation.required',
+              ].includes(code)) {
+                this.errorMessage = code;
+              } else {
+                this.errorMessage = 'error_signin';
+              }
+            });
           }
-
-          const a = errRes.json();
-          a.then((res) => {
-            const code = res.errors[0].code;
-
-            if ([
-              'error_signin',
-              'validation.invalid',
-              'validation.required',
-            ].includes(code)) {
-              this.errorMessage = code;
-            } else {
-              this.errorMessage = 'error_signin';
-            }
-          });
         }
 
         const { $route, $router } = this;
