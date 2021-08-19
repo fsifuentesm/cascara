@@ -31,10 +31,10 @@
             >
               <span v-if="!visible">
                 <icon :icon="['fas', 'caret-down']"/>
-                Mostrar resumen del flujo</span>
+                {{ $t('commons.showExecutionSummary') }}</span>
               <span v-else>
                 <icon :icon="['fas', 'caret-up']"/>
-                Ocultar resumen del flujo</span>
+                {{ $t('commons.hideExecutionSummary') }}</span>
             </a>
           </div>
 

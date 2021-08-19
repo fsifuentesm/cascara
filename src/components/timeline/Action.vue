@@ -89,10 +89,10 @@
           >
             <span v-if="!visible">
               <icon :icon="['fas', 'caret-down']"/>
-              {{ $t('commons.showPointerDetail') }}</span>
+              {{ $t('commons.showPointerOngoingDetail') }}</span>
             <span v-else>
               <icon :icon="['fas', 'caret-up']"/>
-              {{ $t('commons.hidePointerDetail') }}</span>
+              {{ $t('commons.hidePointerOngoingDetail') }}</span>
           </a>
         </div>
       </div>
