@@ -74,14 +74,25 @@
           <div
             v-else
           >
-            <div class="row no-gutters mb-3"
+            <div class="row no-gutters mb-1"
               v-if="!listItems.data.length"
             >
               <div class="col">
                 <h4 class="text-center">No hay elementos para mostrar</h4>
               </div>
             </div>
-            <div v-else>
+            <div class="row no-gutters mb-1"
+              v-else
+            >
+              <div class="col text-left"
+                v-if="searchForm.objType === 'pointer'"
+              >
+                <b-form-checkbox
+                  v-model="loadIfDoable"
+                  switch
+                >{{ $t('dashboard.showDoableTasks') }}</b-form-checkbox>
+              </div>
+
               <div class="col text-right">
                 <span>Mostrando <b>{{ listItems.data.length }}</b>
                 de <b>{{ listItems.totalCount }}</b></span>
@@ -99,7 +110,7 @@
                   :pointer='item'
                   :show-execution='true'
                   :show-detail="!showRight"
-                  :load-if-doable="false"
+                  :load-if-doable="loadIfDoable"
                   :selected-node="item.id === executionId ? nodeId : ''"
                   :selected="item.node ?
                     (item.node.id === nodeId && item.execution.id === executionId) :
@@ -199,6 +210,8 @@ export default {
       feed: '',
       executionId: '',
       nodeId: '',
+
+      loadIfDoable: false,
 
       fixedPayload: {
         data: {},
