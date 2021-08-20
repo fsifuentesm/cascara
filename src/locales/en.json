@@ -27,7 +27,7 @@
     "password_placeholder": "Password",
     "button": "Sign In",
     "error_signin": "We are sorry but it seems the username or password is wrong.",
-    "offline": "We are sorry but it seems that we can\'t validate your credentials."
+    "offline": "We are sorry but it seems that we are unable to validate your credentials."
   },
   "processes": {
     "start_process": "Start process",
