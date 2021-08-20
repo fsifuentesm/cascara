@@ -125,6 +125,29 @@ export default {
   },
 
   methods: {
+    connectLoader() {
+      const vm = this;
+
+      if (vm.loadIfDoable) {
+        vm.observer = new IntersectionObserver((entries) => {
+          const task = entries[0];
+          if (task.isIntersecting) {
+            vm.showTask();
+            vm.visible = true;
+            vm.observer.disconnect();
+          }
+        });
+
+        vm.observer.observe(vm.$el);
+      }
+    },
+
+    disconnectLoader() {
+      if (this.observer) {
+        this.observer.disconnect();
+      }
+    },
+
     validate(validation) {
       const postData = Object.assign({
         execution_id: this.task.data.execution.id,
