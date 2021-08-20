@@ -95,6 +95,9 @@
     "hidePointerOngoingDetail": "Hide task",
     "showPointerOngoingDetail": "Show task"
   },
+  "dashboard": {
+    "showDoableTasks": "Show doable tasks"
+  },
   "errors": {
     "request": {
       "authorization": "Your credentials are invalid, sorry"

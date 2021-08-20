@@ -90,6 +90,9 @@
     "hidePointerOngoingDetail": "Ocultar detalle",
     "showPointerOngoingDetail": "Mostrar detalle"
   },
+  "dashboard": {
+    "showDoableTasks": "Expandir tareas realizables"
+  },
   "validation": {
     "required": "Este campo es requerido",
     "invalid_date": "Fecha inválida",
