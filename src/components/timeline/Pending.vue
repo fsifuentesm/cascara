@@ -229,13 +229,16 @@ export default {
     },
   },
 
+  mounted() {
+    this.connectLoader();
+  },
+
   destroyed() {
     this.disconnectLoader();
   },
 
   watch: {
     loadIfDoable: {
-      immediate: true,
       handler(newVal, oldVal) {
         if (!oldVal && newVal && !this.visible) {
           this.connectLoader();
