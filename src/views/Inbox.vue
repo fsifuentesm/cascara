@@ -385,11 +385,10 @@ export default {
       };
 
       if (payload.minDate && vm.listItems.data.length) {
-        if (payload.minDate > vm.listItems.data[0]) {
-          payload.minDate = moment(payload.minDate).toISOString();
-        } else {
-          payload.minDate = moment(vm.listItems.data[0].started_at).toISOString();
-        }
+        const qMinDate = moment(payload.minDate);
+        const lastMinDate = moment(vm.listItems.data[0].started_at);
+
+        payload.minDate = _.max([lastMinDate, qMinDate]).toISOString();
       } else if (vm.listItems.data.length) {
         payload.minDate = moment(vm.listItems.data[0].started_at).toISOString();
       }
@@ -441,11 +440,10 @@ export default {
       if (payload.maxDate && vm.listItems.data.length) {
         const listLength = vm.listItems.data.length;
 
-        if (vm.listItems.data[listLength - 1] > payload.maxDate) {
-          payload.maxDate = moment(payload.maxDate).add(1, 'days').toISOString();
-        } else {
-          payload.maxDate = moment(vm.listItems.data[listLength - 1].started_at).toISOString();
-        }
+        const qMaxDate = moment(payload.maxDate).add(1, 'days');
+        const lastMaxDate = moment(vm.listItems.data[listLength - 1].started_at);
+
+        payload.maxDate = _.min([lastMaxDate, qMaxDate]).toISOString();
       } else if (vm.listItems.data.length) {
         const listLength = vm.listItems.data.length;
         payload.maxDate = moment(vm.listItems.data[listLength - 1].started_at).toISOString();
