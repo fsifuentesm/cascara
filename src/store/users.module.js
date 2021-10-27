@@ -6,21 +6,22 @@ const state = {
 };
 
 const actions = {
-  getUserGroups({ commit }, identifier) {
-    userService.getUserGroups(identifier)
-      .then((groups) => {
-        commit('getUserGroupsSuccess', {
-          identifier,
-          groups,
-        });
-      });
-  },
   getUser({ commit }, identifier) {
     userService.getUser(identifier)
       .then((user) => {
         commit('getUserSuccess', {
           identifier,
           user,
+        });
+      });
+  },
+
+  getUserGroups({ commit }, identifier) {
+    userService.getUserGroups(identifier)
+      .then((groups) => {
+        commit('getUserGroupsSuccess', {
+          identifier,
+          groups,
         });
       });
   },
@@ -34,6 +35,7 @@ const mutations = {
       fullname: payload.user.fullname,
     });
   },
+
   getUserGroupsSuccess(ste, payload) {
     Vue.set(ste.allItems, payload.identifier, {
       groups: payload.groups,
