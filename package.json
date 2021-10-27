@@ -45,6 +45,7 @@
     "vue-router": "^3.0.6",
     "vue-sse": "^2.2.0",
     "vuejs-datepicker": "^0.9.29",
+    "vuex": "^3.6.2",
     "whatwg-fetch": "^2.0.4"
   },
   "devDependencies": {
