@@ -6,6 +6,13 @@ const state = {
 };
 
 const actions = {
+  getAllUsers({ commit }) {
+    userService.getUsers()
+      .then((items) => {
+        commit('getAllUsersSuccess', items);
+      });
+  },
+
   getUser({ commit }, identifier) {
     userService.getUser(identifier)
       .then((user) => {
@@ -25,33 +32,89 @@ const actions = {
         });
       });
   },
+
+  getUserPermissions({ commit }, identifier) {
+    userService.getUserPermissions(identifier)
+      .then((permissions) => {
+        commit('getUserPermissionsSuccess', {
+          identifier,
+          permissions,
+        });
+      });
+  },
 };
 
 const mutations = {
+  getAllUsersSuccess(ste, items) {
+    items.forEach((x) => {
+      Vue.set(ste.allItems, x.identifier, {
+        data: {
+          identifier: x.identifier,
+          email: x.email,
+          fullname: x.fullname,
+        },
+        loading: false,
+        errors: false,
+      });
+    });
+  },
+
   getUserSuccess(ste, payload) {
     Vue.set(ste.allItems, payload.identifier, {
-      identifier: payload.user.identifier,
-      email: payload.user.email,
-      fullname: payload.user.fullname,
+      data: {
+        identifier: payload.user.identifier,
+        email: payload.user.email,
+        fullname: payload.user.fullname,
+      },
       loading: false,
       errors: false,
     });
   },
 
   getUserGroupsSuccess(ste, payload) {
-    if (set.allItems[payload.identifier]) {
+    if (ste.allItems[payload.identifier]) {
       Vue.set(ste.allItems, payload.identifier, Object.assign(
-        ste.allItems[payload.identifier],
         {
-          groups: payload.groups,
+          ...ste.allItems[payload.identifier],
+          data: {
+            ...ste.allItems[payload.identifier].data,
+            groups: payload.groups,
+          },
           loading: false,
           errors: false,
         },
       ));
     } else {
       Vue.set(ste.allItems, payload.identifier, {
-        groups: payload.groups,
-        identifier: payload.identifier,
+        data: {
+          groups: payload.groups,
+          identifier: payload.identifier,
+        },
+        loading: false,
+        errors: false,
+      });
+    }
+  },
+
+  getUserPermissionsSuccess(ste, payload) {
+    if (ste.allItems[payload.identifier]) {
+      Vue.set(ste.allItems, payload.identifier, Object.assign(
+        {
+          ...ste.allItems[payload.identifier],
+          data: {
+            ...ste.allItems[payload.identifier].data,
+            permissions: payload.permissions,
+          },
+          loading: false,
+          errors: false,
+        },
+      ));
+    } else {
+      Vue.set(ste.allItems, payload.identifier, {
+        data: {
+          permissions: payload.permissions,
+          identifier: payload.identifier,
+        },
         loading: false,
         errors: false,
       });
