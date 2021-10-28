@@ -19,6 +19,17 @@ function authHeader() {
   return { };
 }
 
+function getUsers() {
+  return ApiService().get(
+    '/v1/user',
+    Object.assign(
+      { headers: authHeader() },
+    ),
+  )
+    .then(({ data }) => data.items)
+    .catch(error => Promise.reject(error));
+}
+
 function getUser(identifier) {
   const urlId = encodeURIComponent(identifier);
 
@@ -45,9 +56,24 @@ function getUserGroups(identifier) {
     .catch(error => Promise.reject(error));
 }
 
+function getUserPermissions(identifier) {
+  const urlId = encodeURIComponent(identifier);
+
+  return ApiService().get(
+    `/v1/user/${urlId}/permissions`,
+    Object.assign(
+      { headers: authHeader() },
+    ),
+  )
+    .then(({ data }) => data.items)
+    .catch(error => Promise.reject(error));
+}
+
 export const userService = {
+  getUsers,
   getUser,
   getUserGroups,
+  getUserPermissions,
 };
 
 export default {
