@@ -33,13 +33,29 @@ const mutations = {
       identifier: payload.user.identifier,
       email: payload.user.email,
       fullname: payload.user.fullname,
+      loading: false,
+      errors: false,
     });
   },
 
   getUserGroupsSuccess(ste, payload) {
-    Vue.set(ste.allItems, payload.identifier, {
-      groups: payload.groups,
-    });
+    if (set.allItems[payload.identifier]) {
+      Vue.set(ste.allItems, payload.identifier, Object.assign(
+        ste.allItems[payload.identifier],
+        {
+          groups: payload.groups,
+          loading: false,
+          errors: false,
+        },
+      ));
+    } else {
+      Vue.set(ste.allItems, payload.identifier, {
+        groups: payload.groups,
+        identifier: payload.identifier,
+        loading: false,
+        errors: false,
+      });
+    }
   },
 };
 
