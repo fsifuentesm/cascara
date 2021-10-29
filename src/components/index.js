@@ -21,6 +21,7 @@ import SignIn from './SignIn';
 import LinkInput from './LinkInput';
 import UserInput from './UserInput';
 import UserCard from './UserCard';
+import TaskCard from './TaskCard';
 
 import UsersPopover from './misc/UsersPopover';
 import MdRender from './misc/MdRender';
@@ -46,6 +47,7 @@ Vue.component('datetime-input', DatetimeInput);
 Vue.component('link-input', LinkInput);
 Vue.component('user-input', UserInput);
 Vue.component('user-card', UserCard);
+Vue.component('task-card', TaskCard);
 
 // Doqer components
 Vue.component('doqer-input', DoqerSelect);

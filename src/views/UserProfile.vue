@@ -11,6 +11,15 @@
         <div v-else>
           <user-card v-bind:user="currentUser">
           </user-card>
+
+          <div v-if="currentUser.tasks">
+            <div v-for="task in currentUser.tasks"
+              :key="task.id"
+            >
+              <task-card v-bind:task="task">
+              </task-card>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -41,6 +50,7 @@ export default {
     ...mapActions('users', {
       getUser: 'getUser',
       getUserGroups: 'getUserGroups',
+      getUserTasks: 'getUserTasks',
       getUserPermissions: 'getUserPremissions',
     }),
   },
@@ -54,12 +64,14 @@ export default {
 
   mounted() {
     this.getUser(this.identifier);
+    this.getUserTasks(this.identifier);
   },
 
   watch: {
     identifier: {
       handler(newID) {
         this.getUser(newID);
+        this.getUserTasks(newID);
       },
     },
   },
