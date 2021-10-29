@@ -12,6 +12,7 @@ import router from './router';
 import './fontawesome';
 import './bootstrapvue';
 import i18n from './i18n';
+import { store } from './store';
 
 import UserServicePlugin from './services/user.service';
 import PointerServicePlugin from './services/pointer.service';
@@ -41,6 +42,7 @@ new Vue({
   el: '#app',
   router,
   i18n,
+  store,
   components: { App },
   template: '<App/>',
 });
