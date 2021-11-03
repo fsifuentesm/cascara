@@ -26,20 +26,25 @@ function getGroups() {
       { headers: authHeader() },
     ),
   )
-    .then(({ data }) => data.items)
+    .then(({ data }) => data.items.map(x => ({
+      identifier: x.codename,
+      name: x.name,
+    })))
     .catch(error => Promise.reject(error));
 }
 
 function getGroup(identifier) {
   const urlId = encodeURIComponent(identifier);
-
   return ApiService().get(
     `/v1/group/${urlId}`,
     Object.assign(
       { headers: authHeader() },
     ),
   )
-    .then(({ data }) => data)
+    .then(({ data }) => ({
+      identifier: data.codename,
+      name: data.name,
+    }))
     .catch(error => Promise.reject(error));
 }
 
