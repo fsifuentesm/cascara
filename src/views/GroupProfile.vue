@@ -11,7 +11,7 @@
           Hubo un error al cargar la información
         </div>
         <div v-else>
-          <group-card v-bind:user="currentGroup">
+          <group-card v-bind:group="currentGroup">
           </group-card>
         </div>
       </div>
