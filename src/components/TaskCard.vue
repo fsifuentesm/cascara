@@ -1,25 +1,23 @@
 <template>
   <div class="card no-body">
     <div class="container-fluid">
-      <b>
-        <icon v-if="task.status === 'ongoing'"
-          :icon="['fas', 'play']"
-        ></icon>
-        <icon v-else-if="task.status === 'finished'"
-          :icon="['fas', 'check']"
-        ></icon>
-        <icon v-else-if="task.status === 'finished'"
-          :icon="['fas', 'stop']"
-        ></icon>
-        {{ task.name }}
-      </b>
+      <b><app-md-render :raw-string="task.name"/></b>
       <br/>
       <small v-if="task.status === 'ongoing'"
-        class="text-muted">Tarea en curso</small>
+        class="text-muted">
+        <icon :icon="['fas', 'play']" size="xs"></icon>
+        Tarea en curso
+      </small>
       <small v-else-if="task.status === 'finished'"
-        class="text-muted">Tarea terminada</small>
+        class="text-muted">
+        <icon :icon="['fas', 'check']" size="xs"></icon>
+        Tarea terminada
+      </small>
       <small v-else-if="task.status === 'cancelled'"
-        class="text-muted">Tarea cancelada</small>
+        class="text-muted">
+        <icon :icon="['fas', 'stop']" size="xs"></icon>
+        Tarea cancelada
+      </small>
       <br/>
       <small>{{ task.startedAt|fmtDate('LLLL') }}</small>
     </div>
