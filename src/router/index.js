@@ -60,6 +60,12 @@ export default new Router({
           props: true,
         },
         {
+          name: 'group-profile',
+          path: 'groups/:identifier',
+          component: Vue.component('app-group-profile'),
+          props: true,
+        },
+        {
           name: 'default',
           path: '',
           redirect: 'dashboard',
