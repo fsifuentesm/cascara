@@ -1,7 +1,6 @@
 <template>
 
   <div class="container-fluid p-0" style="max-width: 1270px;">
-    "{{ currentGroup }}"
     <div class="row">
       <div class="col">
         <div v-if="currentGroup && currentGroup.loading">
