@@ -4,8 +4,8 @@
       <div class="col">
         <div v-for="user in currentUsers"
           :key="user.id">
-          <user-list v-bind:user="user.data">
-          </user-list>
+          <users-list v-bind:user="user.data">
+          </users-list>
         </div>
       </div>
     </div>
