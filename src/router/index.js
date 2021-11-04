@@ -66,6 +66,12 @@ export default new Router({
           props: true,
         },
         {
+          name: 'execution-profile',
+          path: 'executions/:identifier',
+          component: Vue.component('app-execution-profile'),
+          props: true,
+        },
+        {
           name: 'default',
           path: '',
           redirect: 'dashboard',

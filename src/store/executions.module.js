@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import { executionService } from '../services/execution.service';
+import { pointerService } from '../services/pointer.service';
 
 const state = {
   allItems: {},
@@ -20,6 +21,26 @@ const actions = {
           identifier,
           execution,
         });
+      });
+  },
+
+  getExecutionPointers({ commit }, identifier) {
+    pointerService.getPointers({ executionId: identifier })
+      .then(({ items }) => {
+        commit('getExecutionPointersSuccess', {
+          identifier,
+          pointers: items.map(x => x.id),
+        });
+        commit(
+          'pointers/getAllPointersSuccess',
+          items.map(x => ({
+            identifier: x.id,
+            name: x.node.name,
+            startedAt: x.started_at,
+            status: x.state,
+          })),
+          { root: true },
+        );
       });
   },
 };
@@ -49,6 +70,31 @@ const mutations = {
       loading: false,
       errors: false,
     });
+  },
+
+  getExecutionPointersSuccess(ste, payload) {
+    if (ste.allItems[payload.identifier]) {
+      Vue.set(ste.allItems, payload.identifier, Object.assign(
+        {
+          ...ste.allItems[payload.identifier],
+          data: {
+            ...ste.allItems[payload.identifier].data,
+            pointers: payload.pointers,
+          },
+          loading: false,
+          errors: false,
+        },
+      ));
+    } else {
+      Vue.set(ste.allItems, payload.identifier, {
+        data: {
+          pointers: payload.pointers,
+          identifier: payload.identifier,
+        },
+        loading: false,
+        errors: false,
+      });
+    }
   },
 };
 

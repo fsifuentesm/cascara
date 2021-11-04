@@ -2,15 +2,15 @@
   <div class="container-fluid p-0" style="max-width: 1270px;">
     <div class="row">
       <div class="col">
-        <div v-if="currentUser && currentUser.loading">
+        <div v-if="currentExecution && currentExecution.loading">
           Cargando...
         </div>
-        <div v-else-if="!currentUser || currentUser.errors">
+        <div v-else-if="!currentExecution || currentExecution.errors">
           Hubo un error al cargar la información
         </div>
         <div v-else>
-          <user-card v-bind:user="currentUser">
-          </user-card>
+          <execution-card v-bind:execution="currentExecution">
+          </execution-card>
 
           <div v-if="currentPointers">
             <div v-for="task in currentPointers"
@@ -32,38 +32,35 @@ import { mapState, mapActions } from 'vuex';
 export default {
   computed: {
     ...mapState({
-      users: state => state.users.allItems,
+      executions: state => state.executions.allItems,
       pointers: state => state.pointers.allItems,
     }),
 
-    currentUser() {
+    currentExecution() {
       if (
         this.identifier &&
-        this.users[this.identifier] &&
-        this.users[this.identifier].data) {
-        return this.users[this.identifier].data;
+        this.executions[this.identifier] &&
+        this.executions[this.identifier].data) {
+        return this.executions[this.identifier].data;
       }
       return null;
     },
 
     currentPointers() {
       if (
-        this.currentUser &&
-        this.currentUser.pointers) {
-        return this.currentUser.pointers
-          .map(x => this.pointers[x])
-          .filter(x => x.data).map(x => x.data);
+        this.currentExecution &&
+        this.currentExecution.pointers) {
+        return this.currentExecution.pointers
+          .map(x => this.pointers[x].data);
       }
       return [];
     },
   },
 
   methods: {
-    ...mapActions('users', {
-      getUser: 'getUser',
-      getUserGroups: 'getUserGroups',
-      getUserPointers: 'getUserPointers',
-      getUserPermissions: 'getUserPremissions',
+    ...mapActions('executions', {
+      getExecution: 'getExecution',
+      getExecutionPointers: 'getExecutionPointers',
     }),
   },
 
@@ -75,21 +72,20 @@ export default {
   },
 
   mounted() {
-    this.getUser(this.identifier);
-    this.getUserPointers(this.identifier);
+    this.getExecution(this.identifier);
+    this.getExecutionPointers(this.identifier);
   },
 
   watch: {
     identifier: {
       handler(newID) {
-        this.getUser(newID);
-        this.getUserPointers(newID);
+        this.getExecution(newID);
+        this.getExecutionPointers(newID);
       },
     },
   },
 
 };
-
 </script>
 
 <style type="text/css"></style>
