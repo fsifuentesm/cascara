@@ -34,21 +34,26 @@ const actions = {
       });
   },
 
-  getUserTasks({ commit }, identifier) {
+  getUserPointers({ commit }, identifier) {
     pointerService.getPointers({
       actoredUsers: [identifier],
       notifiedUsers: [identifier],
     })
-      .then((res) => {
-        commit('getUserTasksSuccess', {
+      .then(({ items }) => {
+        commit('getUserPointersSuccess', {
           identifier,
-          tasks: res.items.map(x => ({
-            name: x.node.name, // TODO: fix in service
-            identifier: x.id, // TODO: fix in service
-            startedAt: x.started_at, // TODO: fix in service
-            status: x.state, // TODO: fix in service
-          })),
+          pointers: items.map(x => x.id),
         });
+        commit(
+          'pointers/getAllPointersSuccess',
+          items.map(x => ({
+            identifier: x.id,
+            name: x.node.name,
+            startedAt: x.started_at,
+            status: x.state,
+          })),
+          { root: true },
+        );
       });
   },
 
@@ -115,14 +120,14 @@ const mutations = {
     }
   },
 
-  getUserTasksSuccess(ste, payload) {
+  getUserPointersSuccess(ste, payload) {
     if (ste.allItems[payload.identifier]) {
       Vue.set(ste.allItems, payload.identifier, Object.assign(
         {
           ...ste.allItems[payload.identifier],
           data: {
             ...ste.allItems[payload.identifier].data,
-            tasks: payload.tasks,
+            pointers: payload.pointers,
           },
           loading: false,
           errors: false,
@@ -131,7 +136,7 @@ const mutations = {
     } else {
       Vue.set(ste.allItems, payload.identifier, {
         data: {
-          tasks: payload.tasks,
+          pointers: payload.pointers,
           identifier: payload.identifier,
         },
         loading: false,

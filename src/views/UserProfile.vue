@@ -12,8 +12,8 @@
           <user-card v-bind:user="currentUser">
           </user-card>
 
-          <div v-if="currentUser.tasks">
-            <div v-for="task in currentUser.tasks"
+          <div v-if="currentPointers">
+            <div v-for="task in currentPointers"
               :key="task.id"
             >
               <task-card v-bind:task="task">
@@ -33,6 +33,7 @@ export default {
   computed: {
     ...mapState({
       users: state => state.users.allItems,
+      pointers: state => state.pointers.allItems,
     }),
 
     currentUser() {
@@ -44,13 +45,24 @@ export default {
       }
       return null;
     },
+
+    currentPointers() {
+      if (
+        this.currentUser &&
+        this.currentUser.pointers) {
+        return this.currentUser.pointers
+          .map(x => this.pointers[x])
+          .filter(x => x.data).map(x => x.data);
+      }
+      return [];
+    },
   },
 
   methods: {
     ...mapActions('users', {
       getUser: 'getUser',
       getUserGroups: 'getUserGroups',
-      getUserTasks: 'getUserTasks',
+      getUserPointers: 'getUserPointers',
       getUserPermissions: 'getUserPremissions',
     }),
   },
@@ -64,14 +76,14 @@ export default {
 
   mounted() {
     this.getUser(this.identifier);
-    this.getUserTasks(this.identifier);
+    this.getUserPointers(this.identifier);
   },
 
   watch: {
     identifier: {
       handler(newID) {
         this.getUser(newID);
-        this.getUserTasks(newID);
+        this.getUserPointers(newID);
       },
     },
   },
