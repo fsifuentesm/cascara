@@ -29,7 +29,7 @@ const mutations = {
     items.forEach((x) => {
       Vue.set(ste.allItems, x.codename, {
         data: {
-          identifier: x.identifier,
+          identifier: x.codename,
           name: x.name,
         },
         loading: false,
@@ -39,9 +39,9 @@ const mutations = {
   },
 
   getGroupSuccess(ste, payload) {
-    Vue.set(ste.allItems, payload.identifier, {
+    Vue.set(ste.allItems, payload.codename, {
       data: {
-        identifier: payload.group.identifier,
+        identifier: payload.group.codename,
         name: payload.group.name,
       },
       loading: false,

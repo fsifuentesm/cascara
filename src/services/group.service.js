@@ -26,10 +26,7 @@ function getGroups() {
       { headers: authHeader() },
     ),
   )
-    .then(({ data }) => data.items.map(x => ({
-      identifier: x.codename,
-      name: x.name,
-    })))
+    .then(({ data }) => data.items)
     .catch(error => Promise.reject(error));
 }
 

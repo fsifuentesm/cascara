@@ -22,6 +22,7 @@ import LinkInput from './LinkInput';
 import UserInput from './UserInput';
 import UserCard from './UserCard';
 import GroupCard from './GroupCard';
+import GroupsList from './GroupsList';
 import ExecutionCard from './ExecutionCard';
 import TaskCard from './TaskCard';
 
@@ -50,6 +51,7 @@ Vue.component('link-input', LinkInput);
 Vue.component('user-input', UserInput);
 Vue.component('user-card', UserCard);
 Vue.component('group-card', GroupCard);
+Vue.component('groups-list', GroupsList);
 Vue.component('execution-card', ExecutionCard);
 Vue.component('task-card', TaskCard);
 
