@@ -1,23 +1,24 @@
 <template>
-  <div class="header-container">
-    <div
-      v-for="(user, index) in users"
-      :key="index">
-      {{ user.fullname }}
+  <div class="card no-body">
+    <div class="container-fluid">
+      <small class="text-muted">
+        {{ user.identifier }}
+      </small><br>
+      <b>{{ user.fullname }}</b><br>
+      <small>
+        {{ user.email }}
+      </small>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  props: ['users'],
-  data() {
-    return {
-      sleep: 0,
-      tiemoutId: 0,
-    };
-  },
-  mounted() {
+  props: {
+    user: {
+      type: Object,
+      required: true,
+    },
   },
 };
 </script>
