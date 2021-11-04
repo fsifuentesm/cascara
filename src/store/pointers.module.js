@@ -9,7 +9,10 @@ const actions = {
   getAllPointers({ commit }) {
     pointerService.getPointers()
       .then((items) => {
-        commit('getAllPointersSuccess', items);
+        commit(
+          'getAllPointersSuccess',
+          items.map(x => ({ identifier: x.id, name: x.node.name, startedAt: x.started_at })),
+        );
       });
   },
 
@@ -26,13 +29,9 @@ const actions = {
 
 const mutations = {
   getAllPointersSuccess(ste, items) {
-    items.forEach((x) => {
-      Vue.set(ste.allItems, x.identifier, {
-        data: {
-          identifier: x.id,
-          name: x.name,
-          startedAt: x.started_at,
-        },
+    items.forEach((ptr) => {
+      Vue.set(ste.allItems, ptr.identifier, {
+        data: ptr,
         loading: false,
         errors: false,
       });
@@ -41,11 +40,7 @@ const mutations = {
 
   getPointerSuccess(ste, payload) {
     Vue.set(ste.allItems, payload.identifier, {
-      data: {
-        identifier: payload.pointer.id,
-        name: payload.pointer.name,
-        startedAt: payload.pointer.started_at,
-      },
+      data: payload.pointer,
       loading: false,
       errors: false,
     });
