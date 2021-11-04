@@ -24,6 +24,7 @@ import UserCard from './UserCard';
 import GroupCard from './GroupCard';
 import ExecutionCard from './ExecutionCard';
 import TaskCard from './TaskCard';
+import UsersList from './UsersList';
 
 import UsersPopover from './misc/UsersPopover';
 import MdRender from './misc/MdRender';
@@ -49,6 +50,7 @@ Vue.component('datetime-input', DatetimeInput);
 Vue.component('link-input', LinkInput);
 Vue.component('user-input', UserInput);
 Vue.component('user-card', UserCard);
+Vue.component('users-list', UsersList);
 Vue.component('group-card', GroupCard);
 Vue.component('execution-card', ExecutionCard);
 Vue.component('task-card', TaskCard);

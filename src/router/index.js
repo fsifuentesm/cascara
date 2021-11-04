@@ -54,6 +54,12 @@ export default new Router({
           ),
         },
         {
+          name: 'users',
+          path: 'users/',
+          component: Vue.component('app-users'),
+          props: true,
+        },
+        {
           name: 'user-profile',
           path: 'users/:identifier',
           component: Vue.component('app-user-profile'),
