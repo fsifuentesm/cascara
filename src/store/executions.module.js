@@ -25,7 +25,7 @@ const actions = {
   },
 
   getExecutionPointers({ commit }, identifier) {
-    pointerService.getPointers({ executionId: identifier })
+    pointerService.getPointers({ executionIds: [identifier] })
       .then(({ items }) => {
         commit('getExecutionPointersSuccess', {
           identifier,
